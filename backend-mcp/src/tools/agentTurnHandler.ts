@@ -107,6 +107,20 @@ function resolveOfflineHeuristic(query: string): {
     };
   }
 
+  const isQuestion =
+    lower.startsWith('can i') ||
+    lower.startsWith('should i') ||
+    lower.startsWith('could i') ||
+    lower.startsWith('may i') ||
+    lower.startsWith('is it safe') ||
+    lower.startsWith('what happens if') ||
+    lower.includes('safe to') ||
+    lower.includes('interaction') ||
+    lower.includes('contraindication') ||
+    lower.includes('side effect') ||
+    lower.includes('together') ||
+    lower.includes('combine');
+
   // 1. Schedule inquiry intent (getTodaySchedule) - Priority if query mentions schedule/calendar
   const isScheduleIntent =
     lower.includes('schedule') ||
@@ -115,7 +129,11 @@ function resolveOfflineHeuristic(query: string): {
     lower.includes('upcoming') ||
     lower.includes('next dose') ||
     lower.includes('calendar') ||
-    (lower.includes('today') && !lower.includes('took') && !lower.includes('taken') && !lower.includes('skip'));
+    (!isQuestion &&
+      lower.includes('today') &&
+      !lower.includes('took') &&
+      !lower.includes('taken') &&
+      !lower.includes('skip'));
 
   if (isScheduleIntent) {
     return {
@@ -126,18 +144,19 @@ function resolveOfflineHeuristic(query: string): {
 
   // 2. Dose intake / skipped intent (logDoseStatus)
   const isDoseIntent =
-    lower.includes('took') ||
-    lower.includes('taken') ||
-    lower.includes('had my') ||
-    lower.includes('drank') ||
-    lower.includes('swallowed') ||
-    lower.includes('skip') ||
-    lower.includes('skipped') ||
-    lower.includes('morning pills') ||
-    lower.includes('morning pill') ||
-    lower.includes('evening pills') ||
-    ((lower.includes('take') || lower.includes('log') || lower.includes('mark')) &&
-      (lower.includes('pill') || lower.includes('dose') || lower.includes('medication') || lower.includes('medicine') || lower.includes('amlodipine') || lower.includes('atorvastatin') || lower.includes('metformin') || lower.includes('aspirin')));
+    !isQuestion &&
+    (lower.includes('took') ||
+      lower.includes('taken') ||
+      lower.includes('had my') ||
+      lower.includes('drank') ||
+      lower.includes('swallowed') ||
+      lower.includes('skip') ||
+      lower.includes('skipped') ||
+      lower.includes('morning pills') ||
+      lower.includes('morning pill') ||
+      lower.includes('evening pills') ||
+      ((lower.includes('take') || lower.includes('log') || lower.includes('mark')) &&
+        (lower.includes('pill') || lower.includes('dose') || lower.includes('medication') || lower.includes('medicine') || lower.includes('amlodipine') || lower.includes('atorvastatin') || lower.includes('metformin') || lower.includes('aspirin'))));
 
   if (isDoseIntent) {
     const status: 'taken' | 'skipped' =
@@ -236,7 +255,7 @@ function resolveOfflineHeuristic(query: string): {
     };
   }
 
-  // 5. Clinical symptoms or health concerns intent (clinicalAdvisor)
+  // 5. Clinical symptoms, drug interactions, or health concerns intent (clinicalAdvisor)
   const isClinicalIntent =
     lower.includes('dizzy') ||
     lower.includes('dizziness') ||
@@ -248,7 +267,14 @@ function resolveOfflineHeuristic(query: string): {
     lower.includes('fall') ||
     lower.includes('headache') ||
     lower.includes('nausea') ||
-    lower.includes('feel');
+    lower.includes('feel') ||
+    lower.includes('warfarin') ||
+    lower.includes('aspirin') ||
+    lower.includes('interaction') ||
+    lower.includes('contraindication') ||
+    lower.includes('safe to take') ||
+    lower.includes('side effect') ||
+    (isQuestion && (lower.includes('take') || lower.includes('medicine') || lower.includes('pill') || lower.includes('drug') || lower.includes('with')));
 
   if (isClinicalIntent) {
     return {

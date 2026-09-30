@@ -18,7 +18,7 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_MCP_URL ||
   'http://localhost:3001';
 
-const DEFAULT_TIMEOUT_MS = 8000;
+const DEFAULT_TIMEOUT_MS = 25000;
 
 function getActiveUserId(): string | null {
   if (typeof window === 'undefined') return null;

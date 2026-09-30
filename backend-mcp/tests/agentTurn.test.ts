@@ -111,5 +111,17 @@ describe('CareBridge Ambient Agentic Loop & Voice Turn Orchestrator', () => {
     expect(response.toolResult.sarahNotified).toBe(true);
     expect(response.speechResponse).toContain('Sarah at work (+1 555-0199)');
   });
+
+  // TEST 9: Intent analysis for drug-drug interaction & medication safety query -> routes to clinicalAdvisor
+  it('dispatches clinicalAdvisor tool when patient asks about medication interactions (e.g. Warfarin + Aspirin)', async () => {
+    const response = await handleAgentTurn({
+      query: 'Can I take Warfarin with my daily Baby Aspirin?',
+    });
+
+    expect(response.success).toBe(true);
+    expect(response.toolName).toBe('clinicalAdvisor');
+    expect(response.toolResult).toBeDefined();
+    expect(response.toolResult.assessment || response.toolResult.speechResponse).toBeDefined();
+  });
 });
 

@@ -9,13 +9,15 @@ import { getLocalDateString } from '../utils/dateUtils.js';
 export const clinicalAdvisorTool = {
   definition: {
     name: 'clinicalAdvisor',
-    description: "Evaluate senior symptoms through NVIDIA Nemotron-3-Nano on Nebius Token Factory for clinical triage",
+    description:
+      'Evaluate senior symptoms, clinical triage, medication safety, drug-drug interactions, and contraindications (e.g., "Can I take Warfarin with Aspirin?", "I feel dizzy after taking my pill").',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Patient verbal statement or symptom description (e.g., "I feel dizzy after taking my pill").',
+          description:
+            'Patient verbal statement, symptom description, or medication safety query (e.g., "Can I take Warfarin with my daily Baby Aspirin?", "I feel dizzy after taking my pill").',
         },
       },
       required: ['query'],
