@@ -12,7 +12,7 @@ CareBridge Ambient OS is designed to live quietly on a senior's nightstand or ki
 ### The 4 Design Pillars
 1. **Glanceable at 6 Feet:** Information architecture prioritizes the single most urgent question: *"Do I need to take a pill right now?"* Digits and primary statuses must be decipherable from across a dimly lit bedroom.
 2. **Tremor & Arthritis Tolerance:** Touch hitboxes are oversized (minimum 56×56px), separated by generous whitespace, and accompanied by tactile `:active` state compression (`scale-98`).
-3. **Calm Clinical Dignity:** Avoid alarming hospital-red alerts or cold industrial aesthetics. We combine deep dark teal surfaces with warm neon accents (Alexa Cyan, Medical Emerald, Soft Amber).
+3. **Calm Clinical Dignity:** Avoid alarming hospital-red alerts or cold industrial aesthetics. We combine deep dark teal surfaces with warm neon accents (NVIDIA Green `#76B900`, Medical Emerald `#10B981`, Soft Amber `#F59E0B`).
 4. **Zero AI Slop:** No generic AI purple gradients, no low-contrast faded gray text, and no raw JSON payloads rendered in user-facing surfaces.
 
 ---
@@ -35,8 +35,8 @@ The palette is anchored by deep oceanic teal surfaces that blend seamlessly into
 ### 2.2 Brand & Status Neons
 | Token Name | Hex / CSS Value | Semantic Role |
 | :--- | :--- | :--- |
-| `alexa-cyan` | `#00CAFF` | Core Alexa brand accent, Senior Clock glowing numerals, primary action focus. |
-| `alexa-cyan-glow` | `rgba(0, 202, 255, 0.45)` | Soft drop shadow glow around active elements (`0 0 25px`). |
+| `nvidia-green` | `#76B900` | Core brand accent, glowing status highlights, primary action focus. |
+| `nvidia-green-glow` | `rgba(118, 185, 0, 0.45)` | Soft drop shadow glow around active elements (`0 0 25px`). |
 | `neon-emerald` | `#10B981` | "Dose Taken" success confirmation, 100% adherence badge, normal vitals. |
 | `neon-amber` | `#F59E0B` | Upcoming pending dose warning, moderate clinical triage, missed dose alert. |
 | `neon-rose` | `#F43F5E` | Heart rate vitals, urgent triage warning, severe interaction notification. |
@@ -67,7 +67,7 @@ Tailwind Config:
 
 | Element | Font Family | Size / Leading | Weight | Tracking | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Bedside Clock (HH:MM)** | `Geist (display)` | `text-7xl` to `text-8xl` (72–96px) | `font-black` (900) | `tracking-tight` | High-visibility digital readout with cyan drop-shadow. |
+| **Bedside Clock (HH:MM)** | `Geist (display)` | `text-7xl` to `text-8xl` (72–96px) | `font-black` (900) | `tracking-tight` | High-visibility digital readout with gentle green/teal drop-shadow. |
 | **Pill Hero Header** | `Geist (display)` | `text-2xl` to `text-3xl` (24–30px) | `font-black` (900) | `tracking-wide` | Name of the upcoming medication in Desk Mode. |
 | **Section Headings** | `Geist (display)` | `text-lg` to `text-xl` (18–20px) | `font-bold` (700) | `tracking-wide` | Card headers, modal titles, screen labels. |
 | **Metric & Adherence Digits**| `Geist (display)` | `text-xl` to `text-2xl` (20–24px) | `font-extrabold` (800)| `font-mono` | Adherence percentages, blood pressure readings (`120/80`). |
@@ -84,7 +84,7 @@ Tailwind Config:
   - Minimum hit area for senior action buttons: **56px height** (e.g., `py-4 sm:py-5`, `h-14 w-14`).
   - Minimum button margin: **12px** separation between adjacent buttons to eliminate false touches from tremors.
 - **Physical Feedback:**
-  - Interactive cards feature `alexa-card-interactive` (`hover:-translate-y-0.5`, `active:scale-98`).
+  - Interactive cards feature `ambient-card-interactive` (`hover:-translate-y-0.5`, `active:scale-98`).
   - Active buttons trigger instant haptic/scale feedback before async server confirmation.
 
 ---
@@ -95,7 +95,7 @@ CareBridge uses layered translucent glass surfaces styled with physical specular
 
 ```css
 /* Glass Card with Specular Top Highlight */
-.alexa-card {
+.ambient-card {
   background: linear-gradient(145deg, rgba(20, 40, 52, 0.75) 0%, rgba(11, 23, 31, 0.9) 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -112,7 +112,7 @@ CareBridge uses layered translucent glass surfaces styled with physical specular
   background: rgba(11, 23, 31, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 202, 255, 0.2);
+  border: 1px solid rgba(118, 185, 0, 0.2);
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
 }
@@ -124,36 +124,36 @@ CareBridge uses layered translucent glass surfaces styled with physical specular
 
 ### 6.1 Senior Nightstand Clock (`SeniorClock.tsx`)
 - High-intensity, high-contrast digital display formatted as `HH:MM`.
-- Blinking glowing cyan colon (`animate-pulse`).
+- Blinking glowing colon (`animate-pulse`).
 - Formatted date underneath: `"Friday, October 24"` with an amber sun/moon icon indicating time of day.
 - Visible up to 6 feet away in low bedroom lighting without glare.
 
 ### 6.2 The "I TOOK MY PILL" Hero Button (`DeskModeView.tsx`)
-- Full-width hero action button styled in solid `bg-[#00CAFF]` with high-contrast `#030811` dark text.
+- Full-width hero action button styled in solid `bg-[#10B981]` or `bg-[#76B900]` with high-contrast text.
 - Prominent checkmark icon (`FontAwesomeIcon icon={faCheck}`).
-- On tap: Triggers multi-colored celebratory confetti explosion (`canvas-confetti`), speaks audio praise via Alexa TTS, and immediately updates daily adherence percentage.
+- On tap: Triggers multi-colored celebratory confetti explosion (`canvas-confetti`), speaks audio praise via Neural TTS, and immediately updates daily adherence percentage.
 
-### 6.3 Elevated Alexa Voice Orb (`page.tsx`)
+### 6.3 Elevated Ambient Voice Orb (`page.tsx`)
 - Floats prominently in the center of the bottom navigation bar, elevated 20px above the dock.
-- Gradient fill: `from-[#00CAFF] via-[#0096BE] to-[#0E2838]`.
-- Glowing cyan shadow: `box-shadow: 0 0 35px rgba(0, 202, 255, 0.6)`.
+- Gradient fill: `from-[#76B900] via-[#10B981] to-[#0E2838]`.
+- Glowing green shadow: `box-shadow: 0 0 35px rgba(118, 185, 0, 0.6)`.
 - When voice recording is active: Expands by 110% (`scale-110`) with an animated pulsing halo (`animate-ping`).
 
 ### 6.4 Clinical Advice Rich Card (`ClinicalAdviceCard.tsx`)
 - Emergency triage status pill: Green (Low Risk / Routine), Amber (Moderate / Monitor), Red (Urgent / Seek Care).
 - Immediate Action Advice rendered in prominent high-contrast text.
-- Plain-English clinical explanation generated by AWS Bedrock Anthropic Claude Haiku 4.5.
+- Plain-English clinical explanation generated by **NVIDIA Nemotron-70B on Nebius Token Factory**.
 - Warning signs checklist with bullet points and caregiver notification badge.
 
-### 6.6 Echo Show 10 Hardware Light Bar: Alexa Cyan Ambient Glow (`AlexaAmbientGlow.tsx`)
-- Physical signature of Amazon Echo Show smart displays: a vibrant cyan (`#00CAFF`) to electric blue (`#0070F3`) light bar flush with the bottom display bezel.
+### 6.5 Ambient Smart Display Hardware Light Bar: NVIDIA Green Ambient Glow (`AmbientGlow.tsx`)
+- Physical signature of ambient smart displays: a vibrant NVIDIA green (`#76B900`) to medical emerald (`#10B981`) light bar flush with the bottom display bezel.
 - **Dual-Layer Emittance:**
-  - Upward diffused light plume (`.alexa-aura-plume`): Soft radial gradient illuminating the lower 56px of the dark screen.
-  - Razor-sharp 3.5px core laser light bar (`.alexa-lightbar`): Continuous animated gradient wave running along the screen's bottom radius.
+  - Upward diffused light plume (`.ambient-aura-plume`): Soft radial gradient illuminating the lower 56px of the dark screen.
+  - Razor-sharp 3.5px core laser light bar (`.ambient-lightbar`): Continuous animated gradient wave running along the screen's bottom radius.
 - **Dynamic State Reflexes:**
-  - *Listening:* High-intensity white-cyan focal pip pulsating in the center as voice is captured.
-  - *Thinking (Bedrock Claude Haiku):* Shimmering photon beam sweeping back and forth (`.alexa-traveling-beam`).
-  - *Speaking (AWS Polly Ruth):* Soft harmonic pulse mirroring vocal synthesis rhythm.
+  - *Listening:* High-intensity white-green focal pip pulsating in the center as voice is captured.
+  - *Thinking (Nemotron-70B):* Shimmering photon beam sweeping back and forth.
+  - *Speaking (Neural Voice):* Soft harmonic pulse mirroring vocal synthesis rhythm via Web Audio API `AnalyserNode`.
 
 ---
 
@@ -161,9 +161,9 @@ CareBridge uses layered translucent glass surfaces styled with physical specular
 
 | Animation | Class / Keyframe | Duration / Curve | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Echo Show Light Bar** | `alexaCyanFlow` | 3s infinite ease-in-out | Authentic Amazon Echo Show signature ambient light bar along display edge. |
-| **Ambient Aura Plume** | `alexaAuraPulse` | 2.4s ease-in-out infinite | Recreates physical LED ambient light reflecting onto nightstand/counter surfaces. |
-| **Reasoning Shimmer** | `alexaLightSweep` | 2s linear infinite | Visual feedback while AWS Bedrock Claude models process clinical queries. |
+| **Ambient Light Bar** | `ambientGreenFlow` | 3s infinite ease-in-out | Signature ambient light bar along display edge. |
+| **Ambient Aura Plume** | `ambientAuraPulse` | 2.4s ease-in-out infinite | Recreates physical LED ambient light reflecting onto nightstand/counter surfaces. |
+| **Reasoning Shimmer** | `ambientLightSweep` | 2s linear infinite | Visual feedback while NVIDIA Nemotron-70B processes clinical queries. |
 | **Voice Orb Breathing** | `orb-breath` | 3s infinite ease-in-out | Subtly signals ambient intelligence is alive and listening. |
 | **Voice Halo Pulse** | `ring-pulse` | 2s cubic-bezier | Radiates outward when user speaks. |
 | **Dose Celebration** | `canvas-confetti` | 1.5s physics particle | Positive psychological reinforcement upon taking medications. |
@@ -173,8 +173,8 @@ CareBridge uses layered translucent glass surfaces styled with physical specular
 
 ## 8. Anti-Patterns (Strictly Forbidden)
 
-1. **NO Generic AI Purple Gradients:** Never introduce purple/indigo gradients (`#8B5CF6`, `#6366F1`). CareBridge uses the authentic Amazon Alexa Cyan (`#00CAFF`) and Dark Teal palette.
+1. **NO Generic AI Purple Gradients:** Never introduce purple/indigo gradients (`#8B5CF6`, `#6366F1`). CareBridge uses the authentic NVIDIA Green (`#76B900`), Medical Emerald (`#10B981`) and Dark Teal palette.
 2. **NO Low-Contrast Gray Text:** Never use `#475569` or `#64748B` on `#071117` for instructional text. All senior-facing instructions must be `#F1F5F9` or `#FFFFFF` (WCAG AAA).
 3. **NO Cramped Tap Targets:** Never render clickable buttons under 48×48px. Primary buttons must be 56px or taller.
-4. **NO Raw JSON Dumps in Senior Views:** Raw JSON is strictly restricted to the developer's `AlexaAgentConsole`. Eleanor and Sarah only see formatted, human-first typography.
+4. **NO Raw JSON Dumps in Senior Views:** Raw JSON is strictly restricted to the developer's `AgentConsole`. Eleanor and Sarah only see formatted, human-first typography.
 5. **NO Strobe or Panic Animations:** Emergency triage must remain calm, structured, and informative. Never flash red full-screen backgrounds.

@@ -44,7 +44,7 @@ type ScreenTab = 'caregiver' | 'history' | 'analytics' | 'deskClock';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ScreenTab>('caregiver');
-  const [isDualMode, setIsDualMode] = useState<boolean>(true); // Echo Show 10 dual-screen layout state
+  const [isDualMode, setIsDualMode] = useState<boolean>(true); // Dual-screen bedside layout state
   const [visualCardOpen, setVisualCardOpen] = useState(false);
   const [selectedMedForCard, setSelectedMedForCard] = useState('Amlodipine (Blood Pressure)');
   const [clinicalAdviceOpen, setClinicalAdviceOpen] = useState(false);
@@ -453,7 +453,7 @@ export default function Home() {
             <span className="hidden md:inline">Switch profile</span>
           </button>
 
-          {/* Echo Show 10 Dual View / Single Frame Toggle */}
+          {/* Dual View / Bedside Mode Toggle */}
           <button
             onClick={() => setIsDualMode(true)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
@@ -463,7 +463,7 @@ export default function Home() {
                 ? 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
                 : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs'
             }`}
-            title="Echo Show 10 Dual View"
+            title="Dual View / Bedside Mode"
           >
             <FontAwesomeIcon icon={faDesktop} className="text-xs" />
             <span className="hidden lg:inline">Dual frame</span>

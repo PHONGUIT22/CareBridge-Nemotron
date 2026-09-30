@@ -449,7 +449,7 @@ export async function invokeNemotronWithTools(
       apiKey,
     });
 
-    const systemPrompt = `You are CareBridge Ambient OS, an empathetic, geriatric-focused AI health companion running on an Amazon Echo Show 10 for senior patient Eleanor Vance (78).
+    const systemPrompt = `You are CareBridge Ambient OS, an empathetic, geriatric-focused AI health companion running on an ambient smart display for senior patient Eleanor Vance (78).
 Based on the user's spoken request, choose the single most relevant tool from the provided tools:
 - negotiateAdherence: HIGHEST PRIORITY whenever the patient expresses ANY reluctance, hesitation, resistance, refusal, says "don't want to take", "not taking my pills", "hate this pill", "skip my pills", "leave me alone", "refuse". Even if "today" or "schedule" is mentioned, if reluctance or refusal is expressed, ALWAYS choose negotiateAdherence.
 - getTodaySchedule: ONLY when asking for daily medication routine, upcoming doses, or compliance rate. NOT when resisting doses.
@@ -578,7 +578,7 @@ export async function invokeNemotronWithStreaming(
     apiKey !== 'your_nebius_api_key_here' &&
     !apiKey?.includes('PASTE_');
 
-  const systemPrompt = `You are CareBridge Ambient OS, an empathetic, geriatric-focused health assistant running on an Amazon Echo Show 10 for Eleanor Vance (78).
+  const systemPrompt = `You are CareBridge Ambient OS, an empathetic, geriatric-focused health assistant running on an ambient smart display for Eleanor Vance (78).
 Provide warm, clear, plain-language guidance. Keep speech concise and compassionate.
 Active Medications: ${contextData?.currentMeds?.join(', ') || 'Amlodipine (Norvasc) 5mg, Metformin 500mg, Atorvastatin 20mg, Aspirin 81mg'}.
 Recent Vitals: ${contextData?.recentVitals || 'Blood Pressure 125/82 mmHg, Blood Sugar 108 mg/dL'}.`;
@@ -791,7 +791,7 @@ export async function analyzeClinicalQuery(
   const apiKey = process.env.NEBIUS_API_KEY?.trim();
 
   const systemPrompt = `
-You are CareBridge Ambient Clinical AI, an empathetic, geriatric-focused clinical advisor powered by NVIDIA Nemotron-70B deployed on Amazon Alexa / Echo Show devices for seniors.
+You are CareBridge Ambient Clinical AI, an empathetic, geriatric-focused clinical advisor powered by NVIDIA Nemotron-70B deployed on ambient smart displays for seniors.
 Your goal is to provide calming, clinically sound, easily understandable health advice.
 Always emphasize safety. If symptoms indicate an emergency (chest pain, stroke signs, extreme shortness of breath, sudden severe confusion), advise calling 000 / 911 immediately and set urgencyLevel to 'EMERGENCY'.
 Context of patient:
@@ -800,8 +800,8 @@ Context of patient:
 
 Respond STRICTLY in valid JSON with NO markdown codeblock markers, matching this exact schema:
 {
-  "speechResponse": "Concise, compassionate voice response for Alexa to speak out loud (strictly under 20 words for fast audio rendering).",
-  "displayCardTitle": "Short, clear card title for Echo Show display (e.g. 'Mild Dizziness - Rest Recommended')",
+  "speechResponse": "Concise, compassionate voice response to speak out loud (strictly under 20 words for fast audio rendering).",
+  "displayCardTitle": "Short, clear card title for smart display (e.g. 'Mild Dizziness - Rest Recommended')",
   "actionAdvice": "Concrete, actionable step-by-step guidance for the senior or caregiver (e.g. 'Sit down immediately and drink a glass of warm water. Rest for 15 minutes before checking blood pressure.')",
   "clinicalExplanation": "Plain-language clinical reason for why this might be happening (e.g. 'Transient orthostatic hypotension may occur shortly after taking anti-hypertensive medication such as Amlodipine.')",
   "urgencyLevel": "LOW" | "MEDIUM" | "HIGH" | "EMERGENCY",
