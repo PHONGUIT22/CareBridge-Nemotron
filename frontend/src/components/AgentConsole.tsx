@@ -78,6 +78,10 @@ const QUICK_PROMPTS = [
     prompt: 'Check front porch camera for packages.',
   },
   {
+    label: 'Tavily Drug Check (Warfarin)',
+    prompt: 'Can I take Warfarin with my daily Baby Aspirin?',
+  },
+  {
     label: 'Unlock Door (Emergency)',
     prompt: 'Unlock front door for paramedics.',
   },

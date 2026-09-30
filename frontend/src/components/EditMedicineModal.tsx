@@ -13,6 +13,8 @@ import {
   faCircleNotch,
   faUserDoctor,
   faCheck,
+  faMagnifyingGlass,
+  faArrowUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
 import { mcpClient } from '../services/mcpClient';
 import { DrugInteractionCheckResult, DrugInteractionWarning } from '../types';
@@ -208,7 +210,7 @@ export function EditMedicineModal({ isOpen, onClose, medicine, onSave }: EditMed
                   </span>
                 </div>
                 <span className="text-[10px] text-slate-500 uppercase tracking-wider font-mono">
-                  Beers Criteria
+                  Beers Criteria + Tavily Verification
                 </span>
               </div>
 
@@ -224,7 +226,7 @@ export function EditMedicineModal({ isOpen, onClose, medicine, onSave }: EditMed
               </p>
 
               {/* Clinical Risk & Mechanism */}
-              <div className="text-[11px] space-y-1.5 p-2.5 rounded-xl bg-white/80 border border-slate-200 text-slate-700 mb-3">
+              <div className="text-[11px] space-y-1.5 p-2.5 rounded-xl bg-white/80 border border-slate-200 text-slate-700 mb-2.5">
                 <p>
                   <strong className="text-slate-900">Clinical Risk:</strong> {primaryWarning.clinicalRisk}
                 </p>
@@ -235,6 +237,45 @@ export function EditMedicineModal({ isOpen, onClose, medicine, onSave }: EditMed
                   <strong>Recommendation:</strong> {primaryWarning.recommendation}
                 </p>
               </div>
+
+              {/* TAVILY LIVE WEB EVIDENCE GROUNDING ($3,000 PARTNER PRIZE) */}
+              {interactionResult?.tavilyLiveEvidence && (
+                <div className="text-[11px] p-2.5 rounded-xl bg-indigo-50/90 border border-indigo-200/80 text-indigo-950 mb-3 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 font-bold text-indigo-700 text-xs">
+                      <FontAwesomeIcon icon={faMagnifyingGlass} className="text-[10px]" />
+                      Tavily Search API — Live FDA Grounding
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold uppercase bg-indigo-100 text-indigo-800 border border-indigo-200">
+                      {interactionResult.tavilyLiveEvidence.simulated ? 'Fallback Simulation' : 'Live Web Evidence'}
+                    </span>
+                  </div>
+                  {interactionResult.tavilyLiveEvidence.answer && (
+                    <p className="text-slate-800 leading-relaxed font-normal bg-white/80 p-2 rounded-lg border border-indigo-100 text-[11px]">
+                      {interactionResult.tavilyLiveEvidence.answer}
+                    </p>
+                  )}
+                  {interactionResult.tavilyLiveEvidence.sources?.length > 0 && (
+                    <div className="pt-1 border-t border-indigo-100 space-y-1">
+                      <span className="text-[10px] font-semibold text-indigo-900 block">Verified Clinical Citations:</span>
+                      <div className="flex flex-col gap-1 max-h-24 overflow-y-auto pr-0.5">
+                        {interactionResult.tavilyLiveEvidence.sources.slice(0, 3).map((source, idx) => (
+                          <a
+                            key={idx}
+                            href={source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-between text-[10px] text-blue-700 hover:text-blue-900 hover:underline bg-white px-2 py-1 rounded border border-slate-200"
+                          >
+                            <span className="truncate max-w-[280px] font-medium">{source.title}</span>
+                            <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px] shrink-0 ml-1 text-slate-400" />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* DR. REYNOLDS CONSULTATION OVERRIDE CHECKBOX */}
               <label className="flex items-start gap-3 p-2.5 rounded-xl bg-white border border-slate-200 cursor-pointer transition-colors group">

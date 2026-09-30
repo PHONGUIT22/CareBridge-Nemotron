@@ -156,6 +156,7 @@ export interface ClinicalAdviceResponse {
   modelUsed?: string;
   nemotronModelUsed?: string;
   bedrockModelUsed?: string;
+  tavilyEvidence?: TavilyDrugSearchEvidence | null;
   error?: string;
 }
 
@@ -243,12 +244,28 @@ export interface DrugInteractionWarning {
   recommendation: string;
 }
 
+export interface TavilySource {
+  title: string;
+  url: string;
+  content: string;
+  score?: number;
+}
+
+export interface TavilyDrugSearchEvidence {
+  query: string;
+  answer?: string;
+  sources: TavilySource[];
+  searchedAt: string;
+  simulated: boolean;
+}
+
 export interface DrugInteractionCheckResult {
   success: boolean;
   hasInteraction: boolean;
   newDrug: string;
   activeMedsChecked: string[];
   warnings: DrugInteractionWarning[];
+  tavilyLiveEvidence?: TavilyDrugSearchEvidence | null;
   error?: string;
 }
 

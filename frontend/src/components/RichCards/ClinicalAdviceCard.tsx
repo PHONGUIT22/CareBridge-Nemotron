@@ -9,8 +9,10 @@ import {
   faXmark,
   faStethoscope,
   faPaperPlane,
+  faMagnifyingGlass,
+  faArrowUpRightFromSquare,
 } from '@fortawesome/free-solid-svg-icons';
-import { SMSDispatchInfo } from '@/types';
+import { SMSDispatchInfo, TavilyDrugSearchEvidence } from '@/types';
 
 interface ClinicalAdviceCardProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ interface ClinicalAdviceCardProps {
   urgencyLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'EMERGENCY';
   clinicalExplanation?: string;
   smsDispatch?: SMSDispatchInfo | null;
+  tavilyEvidence?: TavilyDrugSearchEvidence | null;
 }
 
 export function ClinicalAdviceCard({
@@ -30,6 +33,7 @@ export function ClinicalAdviceCard({
   urgencyLevel = 'MEDIUM',
   clinicalExplanation = 'Transient orthostatic hypotension may occur shortly after taking anti-hypertensive medication such as Amlodipine.',
   smsDispatch,
+  tavilyEvidence,
 }: ClinicalAdviceCardProps) {
   if (!isOpen) return null;
 
@@ -93,6 +97,45 @@ export function ClinicalAdviceCard({
           <div className="mt-3 text-xs text-slate-300 leading-relaxed bg-[#151922] p-3 rounded-xl border border-white/[0.06]">
             <strong className="text-[#FF5733] font-semibold block mb-1">Clinical insight:</strong>
             {clinicalExplanation}
+          </div>
+        )}
+
+        {/* Tavily Live Evidence Grounding ($3,000 Award Track) */}
+        {tavilyEvidence && (
+          <div className="mt-3 p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-400">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="text-xs" />
+                <span className="text-xs font-semibold tracking-tight">Tavily AI Live Grounding</span>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                {tavilyEvidence.simulated ? 'Fallback Evidence' : 'Live Web Evidence'}
+              </span>
+            </div>
+            {tavilyEvidence.answer && (
+              <p className="text-xs text-slate-200 leading-relaxed bg-[#151922] p-2.5 rounded-xl border border-white/[0.04]">
+                {tavilyEvidence.answer}
+              </p>
+            )}
+            {tavilyEvidence.sources?.length > 0 && (
+              <div className="space-y-1">
+                <span className="text-[10px] text-slate-400 font-mono">Retrieved FDA & Clinical Sources:</span>
+                <div className="flex flex-col gap-1 max-h-24 overflow-y-auto pr-0.5">
+                  {tavilyEvidence.sources.slice(0, 3).map((src, idx) => (
+                    <a
+                      key={idx}
+                      href={src.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-between text-[11px] text-indigo-300 hover:text-indigo-200 bg-[#151922] px-2.5 py-1.5 rounded-lg border border-white/[0.06] hover:border-indigo-500/40 transition-colors"
+                    >
+                      <span className="truncate max-w-[280px] font-medium">{src.title}</span>
+                      <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px] shrink-0 text-slate-400 ml-1.5" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
