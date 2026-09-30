@@ -6,6 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "test:nemotron": "tsx scripts/test-nemotron.ts",
+    "test:tavily": "tsx scripts/test-tavily.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js"
