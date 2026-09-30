@@ -19,7 +19,7 @@
 
 ---
 
-## 🌟 Executive Summary1
+## 🌟 Executive Summary
 
 **CareBridge Ambient OS** transforms ambient smart displays into an autonomous, 24/7 proactive healthcare station for seniors living independently and remote family caregivers.
 
