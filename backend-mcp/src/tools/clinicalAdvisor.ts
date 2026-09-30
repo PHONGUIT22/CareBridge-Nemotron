@@ -9,7 +9,7 @@ import { getLocalDateString } from '../utils/dateUtils.js';
 export const clinicalAdvisorTool = {
   definition: {
     name: 'clinicalAdvisor',
-    description: "Evaluate senior symptoms through NVIDIA Nemotron-70B on Nebius Token Factory for clinical triage",
+    description: "Evaluate senior symptoms through NVIDIA Nemotron-3-Nano on Nebius Token Factory for clinical triage",
     inputSchema: {
       type: 'object',
       properties: {
@@ -36,7 +36,7 @@ export const clinicalAdvisorTool = {
       ? `BP: ${vitals.systolic || '--'}/${vitals.diastolic || '--'} mmHg, Sugar: ${vitals.bloodSugar || '--'} mg/dL, HR: ${vitals.heartRate || '--'} bpm`
       : 'No vitals recorded today yet.';
 
-    // Clinical analysis via NVIDIA Nemotron-70B on Nebius
+    // Clinical analysis via NVIDIA Nemotron-3-Nano on Nebius
     const analysis: ClinicalAnalysisResult = await analyzeClinicalQuery(args.query, {
       currentMeds,
       recentVitals,

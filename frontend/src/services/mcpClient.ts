@@ -225,7 +225,7 @@ export const mcpClient = {
 
   /**
    * POST /api/advisor
-   * Send clinical symptom query to AI advisor (NVIDIA Nemotron-70B on Nebius)
+   * Send clinical symptom query to AI advisor (NVIDIA Nemotron-3-Nano on Nebius)
    */
   async askClinicalAdvisor(query: string): Promise<ClinicalAdviceResponse> {
     const res = await fetchWithTimeout(`${API_BASE_URL}/api/advisor`, {

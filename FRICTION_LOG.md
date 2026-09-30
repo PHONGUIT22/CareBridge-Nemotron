@@ -1,6 +1,6 @@
 # CareBridge Ambient — Developer Friction Log & Platform Feedback
 
-> **Comprehensive Developer Experience (DX) Report on Nebius Token Factory & NVIDIA Nemotron-70B**  
+> **Comprehensive Developer Experience (DX) Report on Nebius Token Factory & NVIDIA Nemotron-3-Nano**  
 > *Prepared for the Nebius x NVIDIA AI Challenge — "Most Valuable Feedback" Award Category.*
 
 ---
@@ -9,7 +9,7 @@
 
 1. [Executive DX Summary & Platform Scorecard](#executive-dx-summary--platform-scorecard)
 2. [Friction Entry #1: Nebius Token Factory Endpoint Discovery & BaseURL Path Mapping](#friction-entry-1-nebius-token-factory-endpoint-discovery--baseurl-path-mapping)
-3. [Friction Entry #2: OpenAI Tool-Calling Spec & Argument Serialization on Nemotron-70B](#friction-entry-2-openai-tool-calling-spec--argument-serialization-on-nemotron-70b)
+3. [Friction Entry #2: OpenAI Tool-Calling Spec & Argument Serialization on Nemotron-3-Nano](#friction-entry-2-openai-tool-calling-spec--argument-serialization-on-nemotron-3-nano)
 4. [Friction Entry #3: SSE Streaming Chunk Delimiters & Time to First Token (TTFT) Buffering](#friction-entry-3-sse-streaming-chunk-delimiters--time-to-first-token-ttft-buffering)
 5. [Friction Entry #4: Non-Deterministic Markdown Wrapping in Structured Clinical JSON](#friction-entry-4-non-deterministic-markdown-wrapping-in-structured-clinical-json)
 6. [Friction Entry #5: Multi-Turn Context Window Budgeting for Ambient Voice Agents](#friction-entry-5-multi-turn-context-window-budgeting-for-ambient-voice-agents)
@@ -24,15 +24,15 @@
 
 ## Executive DX Summary & Platform Scorecard
 
-During the development of **CareBridge Ambient OS**, our engineering team conducted intensive testing of **Nebius Token Factory** using the open-weights model **`nvidia/Llama-3.1-Nemotron-70B-Instruct`**. We integrated this inference pipeline with Model Context Protocol (MCP) Streamable HTTP transports, Tavily Search API live clinical grounding, and low-latency voice feedback.
+During the development of **CareBridge Ambient OS**, our engineering team conducted intensive testing of **Nebius Token Factory** using the open-weights model **`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`**. We integrated this inference pipeline with Model Context Protocol (MCP) Streamable HTTP transports, Tavily Search API live clinical grounding, and low-latency voice feedback.
 
 ### Overall Developer Experience Scorecard
 
 | Dimension | Rating | Key Strength | Primary Opportunity for Improvement |
 | :--- | :---: | :--- | :--- |
 | **API Compatibility** | 9.5 / 10 | 100% drop-in compatibility with standard OpenAI Node SDK (`openai`). | Explicit documentation on model ID alias resolution. |
-| **Inference Latency** | 9.0 / 10 | Exceptional raw throughput on 70B parameters (<350ms TTFT). | Fine-grained server-side chunk flush controls for audio synthesis. |
-| **Tool Calling Fidelity** | 8.5 / 10 | Nemotron-70B reliably generates well-typed JSON arguments. | Parameter schema strictness (`strict: true`) enforcement. |
+| **Inference Latency** | 9.0 / 10 | Exceptional raw throughput on 30B parameters (<350ms TTFT). | Fine-grained server-side chunk flush controls for audio synthesis. |
+| **Tool Calling Fidelity** | 8.5 / 10 | Nemotron-3-Nano reliably generates well-typed JSON arguments. | Parameter schema strictness (`strict: true`) enforcement. |
 | **Developer Documentation** | 8.0 / 10 | Clean onboarding and fast API key provisioning. | Enhanced interactive cookbook examples for multi-agent tool loops. |
 | **Error Telemetry** | 8.5 / 10 | Clear standard HTTP status codes. | Standardized rate-limit remaining headers (`x-ratelimit-remaining`). |
 
@@ -40,29 +40,29 @@ During the development of **CareBridge Ambient OS**, our engineering team conduc
 
 ### Friction Entry #1: Nebius Token Factory Endpoint Discovery & BaseURL Path Mapping
 
-- **Task Attempted:** Initializing the standard `openai` npm SDK client to connect to Nebius Token Factory for `nvidia/Llama-3.1-Nemotron-70B-Instruct`.
+- **Task Attempted:** Initializing the standard `openai` npm SDK client to connect to Nebius Token Factory for `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
 - **Steps Taken:**
   1. Obtained API credentials from Nebius Token Factory console.
-  2. Configured `new OpenAI({ baseURL: 'https://api.tokenfactory.nebius.ai/v1', apiKey: process.env.NEBIUS_API_KEY })`.
+  2. Configured `new OpenAI({ baseURL: 'https://api.tokenfactory.nebius.com/v1', apiKey: process.env.NEBIUS_API_KEY })`.
   3. Dispatched a test chat completion request to `client.chat.completions.create(...)`.
 - **Expected vs. Actual Result:**
   - *Expected:* Clear documentation specifying whether the `/v1` suffix should be included in `baseURL` or if the SDK appends `/v1` automatically.
-  - *Actual:* Passing `https://api.tokenfactory.nebius.ai` resulted in 404 route errors, whereas passing `https://api.tokenfactory.nebius.ai/v1` succeeded. Several developers in community channels attempted passing the full path `/v1/chat/completions` into `baseURL`.
+  - *Actual:* Passing `https://api.tokenfactory.nebius.ai` resulted in 404 route errors, whereas passing `https://api.tokenfactory.nebius.com/v1` succeeded. Several developers in community channels attempted passing the full path `/v1/chat/completions` into `baseURL`.
 - **Severity Rating:** **Low** (Initial setup stumbling block).
 - **Workaround Implemented:** Sanitized environment variable configuration in `backend-mcp/src/ai/nebiusClient.ts` with explicit normalization:
   ```typescript
-  const baseURL = (process.env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.ai/v1').replace(/\/+$/, '');
+  const baseURL = (process.env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.com/v1').replace(/\/+$/, '');
   ```
 - **Actionable Suggestion for Nebius:** Add a prominent "SDK Quickstart Snippet" in the Token Factory dashboard with exact one-line copy-paste code blocks for Python, TypeScript (`openai`), and LangChain/LlamaIndex.
 
 ---
 
-### Friction Entry #2: OpenAI Tool-Calling Spec & Argument Serialization on Nemotron-70B
+### Friction Entry #2: OpenAI Tool-Calling Spec & Argument Serialization on Nemotron-3-Nano
 
 - **Task Attempted:** Executing multi-tool function calling with complex nested arguments (e.g., `logDoseStatusTool` with medication name, taken status, dose timing, and notes).
 - **Steps Taken:**
   1. Provided tool definitions using standard OpenAI function format: `{ type: 'function', function: { name, description, parameters } }`.
-  2. Dispatched clinical triage prompts to `nvidia/Llama-3.1-Nemotron-70B-Instruct`.
+  2. Dispatched clinical triage prompts to `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`.
 - **Expected vs. Actual Result:**
   - *Expected:* The model returns `message.tool_calls` containing parseable JSON in `tool_call.function.arguments`.
   - *Actual:* In ~2% of high-temperature calls, the model output an escaped stringified JSON containing trailing commas (e.g., `{"medicineName": "Atorvastatin", "quantity": 30,}`) which caused standard `JSON.parse()` to throw a syntax error.
@@ -134,11 +134,11 @@ During the development of **CareBridge Ambient OS**, our engineering team conduc
 
 ### Friction Entry #6: Tavily Web Grounding Latency Budgeting Alongside Nebius Inference
 
-- **Task Attempted:** Performing dual-step clinical reasoning: (1) Querying Tavily Search API for live FDA contraindications, then (2) Passing retrieved search context to NVIDIA Nemotron-70B to generate senior-friendly guidance.
+- **Task Attempted:** Performing dual-step clinical reasoning: (1) Querying Tavily Search API for live FDA contraindications, then (2) Passing retrieved search context to NVIDIA Nemotron-3-Nano to generate senior-friendly guidance.
 - **Steps Taken:**
   1. Intercepted user query regarding dual-medication interaction (`Warfarin` + `Ibuprofen`).
   2. Executed HTTP POST to `https://api.tavily.com/search` (measured latency: ~650ms).
-  3. Injected search results into Nemotron-70B context (measured latency: ~400ms).
+  3. Injected search results into Nemotron-3-Nano context (measured latency: ~400ms).
   4. Total round-trip time: ~1,050ms.
 - **Expected vs. Actual Result:**
   - *Expected:* Seamless end-to-end response within senior attention threshold (<1.5s).

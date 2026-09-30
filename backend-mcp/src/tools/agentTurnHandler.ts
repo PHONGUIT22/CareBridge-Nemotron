@@ -348,7 +348,7 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
   const { query, context } = req;
   const trimmedQuery = query.trim();
 
-  // 1. Attempt NVIDIA Nemotron-70B Native Tool-Use via Nebius Token Factory
+  // 1. Attempt NVIDIA Nemotron-3-Nano Native Tool-Use via Nebius Token Factory
   let decision = await invokeNemotronWithTools(trimmedQuery, context);
 
   // 2. If Nemotron returns stop_reason with toolCall

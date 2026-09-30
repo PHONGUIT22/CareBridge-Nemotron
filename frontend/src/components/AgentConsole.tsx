@@ -208,7 +208,7 @@ export function AgentConsole({
             {isThinking && (
               <span className="px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[#1E3A8A] text-xs font-mono font-medium flex items-center gap-1">
                 <FontAwesomeIcon icon={faCircleNotch} className="animate-spin text-[10px]" />
-                Thinking (Nemotron-70B)
+                Thinking (Nemotron-3-Nano)
               </span>
             )}
             {isSpeaking && (
@@ -436,7 +436,7 @@ export function AgentConsole({
           <div className="flex items-center gap-2 text-xs text-slate-500 pl-1 py-1">
             <div className="w-2 h-2 rounded-full bg-[#76B900] animate-pulse" />
             <span className="text-xs font-mono text-emerald-700 font-medium">
-              NVIDIA Llama-3.1-Nemotron-70B reasoning...
+              NVIDIA Nemotron-3-Nano reasoning...
             </span>
           </div>
         )}

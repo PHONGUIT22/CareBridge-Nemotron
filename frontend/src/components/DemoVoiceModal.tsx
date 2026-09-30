@@ -47,7 +47,7 @@ export function DemoVoiceModal({
                 </span>
               </h3>
               <p className="text-[11px] text-slate-400 font-mono">
-                Turn 1: Eleanor (Age 78) ➔ Turn 2: CareBridge Copilot (Nemotron-70B)
+                Turn 1: Eleanor (Age 78) ➔ Turn 2: CareBridge Copilot (Nemotron-3-Nano)
               </p>
             </div>
           </div>

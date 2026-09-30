@@ -322,7 +322,7 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
           timestamp: now,
           toolName: 'Nemotron Tool-Use Orchestrator',
           args: { query: trimmed },
-          result: 'Evaluating intent with NVIDIA Llama-3.1-Nemotron-70B...',
+          result: 'Evaluating intent with NVIDIA Nemotron-3-Nano...',
           status: 'invoking',
         },
         ...prev,

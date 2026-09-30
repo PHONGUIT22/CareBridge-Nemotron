@@ -303,7 +303,7 @@ export function AmbientGlow({
                 ? `"${transcript}"`
                 : 'Listening (Audio-Reactive)...'
               : isThinking
-              ? 'Analyzing with NVIDIA Nemotron-70B...'
+              ? 'Analyzing with NVIDIA Nemotron-3-Nano...'
               : 'CareBridge Ambient Speaking...'}
           </span>
 

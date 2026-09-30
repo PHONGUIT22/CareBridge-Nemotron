@@ -3,10 +3,10 @@
 <div align="center">
 
 **Ambient Medication Adherence & Clinical Copilot for Seniors**  
-*Powered by NVIDIA Nemotron-70B on Nebius Token Factory & Tavily Search API*
+*Powered by NVIDIA Nemotron-3-Nano on Nebius Token Factory & Tavily Search API*
 
 [![NVIDIA AI Challenge](https://img.shields.io/badge/NVIDIA%20AI%20Challenge-Nebius%20Token%20Factory-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://nebius.ai)
-[![LLM Engine](https://img.shields.io/badge/Model-NVIDIA%20Nemotron--70B%20Instruct-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://tokenfactory.nebius.ai)
+[![LLM Engine](https://img.shields.io/badge/Model-NVIDIA%20Nemotron--3--Nano-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://tokenfactory.nebius.ai)
 [![Partner Award: Tavily](https://img.shields.io/badge/Tavily%20Award-Live%20Drug%20Verification-4F46E5?style=for-the-badge&logo=search&logoColor=white)](https://tavily.com)
 [![Protocol](https://img.shields.io/badge/Protocol-Model%20Context%20Protocol%20(MCP)-FF5722?style=for-the-badge&logo=json&logoColor=white)](https://modelcontextprotocol.io)
 [![Stack](https://img.shields.io/badge/Stack-Next.js%2015%20•%20Express%20MCP%20•%20SQLite%20WAL-0EA5E9?style=for-the-badge&logo=react&logoColor=white)](#-tech-stack)
@@ -25,7 +25,7 @@
 
 Millions of older adults struggle with polypharmacy regimens, leading to accidental double-doses, harmful medication omissions, and delayed acute triage. Traditional mobile health applications fail for geriatric users due to fine-motor tremors, visual impairment, cognitive overload, and navigation fatigue. CareBridge solves this by removing screen complexity and embedding clinical intelligence into senior living environments:
 
-1. **NVIDIA Nemotron-70B Clinical Reasoning Engine:** Clinical triage and medication guidance powered by `nvidia/Llama-3.1-Nemotron-70B-Instruct` hosted on high-throughput **Nebius Token Factory** endpoints (`https://api.tokenfactory.nebius.ai/v1`).
+1. **NVIDIA Nemotron-3-Nano Clinical Reasoning Engine:** Clinical triage and medication guidance powered by `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` hosted on high-throughput **Nebius Token Factory** endpoints (`https://api.tokenfactory.nebius.com/v1`).
 2. **$3,000 Tavily Award Integration — Live Medical Verification:** Real-time web-grounded drug interaction checks via **Tavily Search API** (`https://api.tavily.com/search`), querying live FDA safety alerts, geriatric contraindications, and latest clinical guidelines to cross-verify against our 15-drug Beers Criteria registry.
 3. **Full Tri-Pillar Model Context Protocol (MCP) Server:** Complete compliance with Anthropic MCP specifications, implementing **7 Tools**, **2 Resources**, and **2 Prompts** over Streamable HTTP Server-Sent Events (SSE).
 4. **Glanceable Bedside UX (6-Foot Viewing Rule):** High-contrast numerals (WCAG AAA), soothing ambient dark surfaces, and oversized (56px+) tremor-tolerant touch targets (`"I TOOK MY PILL"`).
@@ -40,7 +40,7 @@ Millions of older adults struggle with polypharmacy regimens, leading to acciden
 
 | Category / Prize Target | CareBridge Implementation | Runtime Evidence & Verification |
 | :--- | :--- | :--- |
-| **NVIDIA AI Challenge & Nebius Token Factory** | Full migration to **Nebius Token Factory** inference platform running open-weights **`nvidia/Llama-3.1-Nemotron-70B-Instruct`**. Sub-350ms Time to First Token (TTFT) via OpenAI-compatible endpoints with native function calling and clinical safety guardrails. | [`backend-mcp/src/ai/nebiusClient.ts`](./backend-mcp/src/ai/nebiusClient.ts)<br>[`backend-mcp/src/tools/clinicalAdvisor.ts`](./backend-mcp/src/tools/clinicalAdvisor.ts)<br>Passing tests in `nemotronEnterprise.test.ts`. |
+| **NVIDIA AI Challenge & Nebius Token Factory** | Full migration to **Nebius Token Factory** inference platform running open-weights **`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`**. Sub-350ms Time to First Token (TTFT) via OpenAI-compatible endpoints with native function calling and clinical safety guardrails. | [`backend-mcp/src/ai/nebiusClient.ts`](./backend-mcp/src/ai/nebiusClient.ts)<br>[`backend-mcp/src/tools/clinicalAdvisor.ts`](./backend-mcp/src/tools/clinicalAdvisor.ts)<br>Passing tests in `nemotronEnterprise.test.ts`. |
 | **$3,000 Best Use of Tavily Award** | Real-time live web-grounded clinical drug interaction engine. When analyzing complex symptoms or dual prescriptions, dynamically dispatches queries to **Tavily Search API** (`https://api.tavily.com/search`) with targeted prompts (`"FDA drug interaction [Med1] and [Med2] geriatric"`) to return authoritative clinical evidence. | [`backend-mcp/src/services/drugInteractionService.ts`](./backend-mcp/src/services/drugInteractionService.ts)<br>Dedicated `/api/tavily/verify` endpoint in [`backend-mcp/src/server.ts`](./backend-mcp/src/server.ts). |
 | **Model Context Protocol (MCP)** | Production-ready Model Context Protocol (MCP) server implementing **all 3 MCP Primitives**: **Tools** (`CallToolRequestSchema`, `ListToolsRequestSchema`), **Resources** (`ListResourcesRequestSchema`, `ReadResourceRequestSchema`), and **Prompts** (`ListPromptsRequestSchema`, `GetPromptRequestSchema`) over Streamable HTTP (SSE). | [`backend-mcp/src/server.ts`](./backend-mcp/src/server.ts)<br>[`backend-mcp/src/resources/index.ts`](./backend-mcp/src/resources/index.ts)<br>[`backend-mcp/src/prompts/index.ts`](./backend-mcp/src/prompts/index.ts) |
 | **Most Valuable Feedback ($100 + NVIDIA Swag)** | In-depth Developer Experience (DX) Friction Log detailing **10 comprehensive engineering insights** on Nebius Token Factory ergonomics, OpenAI spec compatibility, streaming performance, and MCP tool orchestration. | [`FRICTION_LOG.md`](./FRICTION_LOG.md)<br>Actionable technical feedback for Nebius and NVIDIA platform teams. |
@@ -84,7 +84,7 @@ CareBridge implements the complete Model Context Protocol specification:
 - [`getTodaySchedule`](./backend-mcp/src/tools/getTodaySchedule.ts): Queries daily regimen, calculates adherence percentage, and lists pending doses.
 - [`logDoseStatus`](./backend-mcp/src/tools/logDoseStatus.ts): Atomically logs taken/skipped state, decrements inventory, and triggers low-stock alerts ($\le 3$ pills).
 - [`recordVitals`](./backend-mcp/src/tools/recordVitals.ts): Records blood pressure, heart rate, and blood glucose into SQLite WAL.
-- [`clinicalAdvisor`](./backend-mcp/src/tools/clinicalAdvisor.ts): Triage engine powered by **NVIDIA Nemotron-70B on Nebius Token Factory** with live web verification.
+- [`clinicalAdvisor`](./backend-mcp/src/tools/clinicalAdvisor.ts): Triage engine powered by **NVIDIA Nemotron-3-Nano on Nebius Token Factory** with live web verification.
 - [`orderRefill`](./backend-mcp/src/tools/orderRefill.ts): Automated 1-click prescription replenishment hub (+30 tablets, express delivery tracking).
 - [`ringDeviceHub`](./backend-mcp/src/tools/ringDeviceHub.ts): Smart IoT Home Hub for front porch camera feed, delivery parcel computer vision detection, and emergency paramedic smart deadbolt unlock.
 - [`negotiateAdherence`](./backend-mcp/src/tools/negotiateAdherence.ts): Multi-turn empathetic AI health guardian negotiation for medication refusal, with automatic **Sarah Connor Circuit-Breaker** escalation to family caregivers.
@@ -101,26 +101,26 @@ Re-usable clinical workflow templates that guide assistant interaction:
 
 ---
 
-## 🧠 Pillar 2: NVIDIA Nemotron-70B on Nebius Token Factory
+## 🧠 Pillar 2: NVIDIA Nemotron-3-Nano on Nebius Token Factory
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                       NEBIUS TOKEN FACTORY INFERENCE                        │
 │                                                                             │
 │   Client Request (OpenAI Spec)                                              │
-│   baseURL: https://api.tokenfactory.nebius.ai/v1                            │
-│   Model: nvidia/Llama-3.1-Nemotron-70B-Instruct                             │
+│   baseURL: https://api.tokenfactory.nebius.com/v1                           │
+│   Model: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B                              │
 │                                                                             │
 │   ┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────┐   │
-│   │   Pre-Inference     │   │   Nemotron-70B      │   │   Streaming     │   │
+│   │   Pre-Inference     │   │   Nemotron-3-Nano   │   │   Streaming     │   │
 │   │   PII & Topic Guard │──▶│   Clinical Reasoning│──▶│   SSE Tokens    │   │
 │   │   (Regex Filter)    │   │   & Tool Calling    │   │   (<350ms TTFT) │   │
 │   └─────────────────────┘   └─────────────────────┘   └─────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-1. **High-Performance Open-Weights Inference:** Leveraging `nvidia/Llama-3.1-Nemotron-70B-Instruct` hosted on Nebius Token Factory for world-class clinical reasoning and conversational nuance.
-2. **OpenAI Compatibility:** Built using standard `openai` SDK pointing to `https://api.tokenfactory.nebius.ai/v1`, eliminating proprietary vendor lock-in.
+1. **High-Performance Open-Weights Inference:** Leveraging `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` hosted on Nebius Token Factory for world-class clinical reasoning and conversational nuance.
+2. **OpenAI Compatibility:** Built using standard `openai` SDK pointing to `https://api.tokenfactory.nebius.com/v1`, eliminating proprietary vendor lock-in.
 3. **Sub-350ms Time to First Token (TTFT):** Token streaming via Server-Sent Events ensures instant voice feedback and visual status updates on smart displays.
 4. **Clinical Safety Guardrails:**
    - **Topic Denial Guardrail:** Intercepts dangerous self-directed dosage modifications (e.g., *"Can I double my Digoxin dose?"*), returning an authoritative refusal:
@@ -202,8 +202,8 @@ flowchart TD
     end
 
     subgraph AICloud["Nebius AI Cloud & Partner Services"]
-        Nebius["Nebius Token Factory (api.tokenfactory.nebius.ai/v1)"]
-        Nemotron["NVIDIA Nemotron-70B Instruct"]
+        Nebius["Nebius Token Factory (api.tokenfactory.nebius.com/v1)"]
+        Nemotron["NVIDIA Nemotron-3-Nano"]
         Guardrails["PII Masking & Cardiac Topic Denial"]
         Tavily["Tavily Search API (Live Drug Verification)"]
     end
@@ -281,7 +281,7 @@ npm run build --workspace=frontend
 ```
 
 **Verification Results: 67 / 67 Passing Automated Tests (100% Pass Rate Across 7 Suites):**
-- ✅ `tests/nemotronEnterprise.test.ts`: NVIDIA Nemotron-70B client, OpenAI spec compatibility, PII redaction, topic denial guardrails, streaming inference.
+- ✅ `tests/nemotronEnterprise.test.ts`: NVIDIA Nemotron-3-Nano client, OpenAI spec compatibility, PII redaction, topic denial guardrails, streaming inference.
 - ✅ `tests/agentTurn.test.ts`: Multi-turn conversational agent orchestration, autonomous tool calling, Sarah Circuit-Breaker escalation.
 - ✅ `tests/beersCriteria.test.ts`: 15-drug Beers Criteria geriatric pharmacology registry and critical interaction checks.
 - ✅ `tests/mcpResourcesPrompts.test.ts`: JSON-RPC 2.0 MCP Resources reading & MCP Prompts execution.
@@ -298,7 +298,7 @@ carebridge-nemotron/
 ├── backend-mcp/                     # BACKEND MCP & NEBIUS/NVIDIA ENGINE
 │   ├── src/
 │   │   ├── ai/                      # AI Client & Speech Engine
-│   │   │   ├── nebiusClient.ts      # NVIDIA Nemotron-70B client on Nebius Token Factory
+│   │   │   ├── nebiusClient.ts      # NVIDIA Nemotron-3-Nano client on Nebius Token Factory
 │   │   │   └── voiceClient.ts       # Ambient voice synthesis engine
 │   │   ├── config/
 │   │   │   └── env.ts               # Environment configuration & API credentials
@@ -318,7 +318,7 @@ carebridge-nemotron/
 │   │   │   └── alertDispatcher.ts   # Emergency SMS & webhook notification dispatcher
 │   │   ├── tools/                   # MCP Pillar 1: Clinical Tools Execution
 │   │   │   ├── agentTurnHandler.ts  # Agent turn orchestrator & heuristic fallback
-│   │   │   ├── clinicalAdvisor.ts   # Nemotron-70B clinical triage tool
+│   │   │   ├── clinicalAdvisor.ts   # Nemotron-3-Nano clinical triage tool
 │   │   │   ├── getTodaySchedule.ts  # Daily schedule & compliance tool
 │   │   │   ├── logDoseStatus.ts     # Dose logging & stock decrement tool
 │   │   │   ├── orderRefill.ts       # Smart pharmacy refill tool

@@ -124,9 +124,9 @@ describe('NVIDIA Nemotron Clinical Enterprise Architecture Suite', () => {
   });
 
   // ==========================================
-  // PART 2: STREAMING INFERENCE & AUDIO SYNTHESIS WITH NEMOTRON-70B
+  // PART 2: STREAMING INFERENCE & AUDIO SYNTHESIS WITH NEMOTRON-3-NANO
   // ==========================================
-  describe('Streaming Inference & Audio Synthesis with NVIDIA Nemotron-70B', () => {
+  describe('Streaming Inference & Audio Synthesis with NVIDIA Nemotron-3-Nano', () => {
     it('streams tokens and synthesizes speech starting from the very first sentence with TTFA < 400ms', async () => {
       const tokensReceived: string[] = [];
       const sentencesReceived: string[] = [];

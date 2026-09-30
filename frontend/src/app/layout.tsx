@@ -17,7 +17,7 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: 'CareBridge Ambient - Smart Health Display',
   description:
-    'Senior Medication Adherence & Care Companion powered by NVIDIA Nemotron-70B on Nebius Token Factory',
+    'Senior Medication Adherence & Care Companion powered by NVIDIA Nemotron-3-Nano on Nebius Token Factory',
 };
 
 export default function RootLayout({

@@ -248,7 +248,7 @@ export default function Home() {
     }, 5000);
   };
 
-  // Single Source of Truth: Voice Agent & Nemotron-70B Multi-Turn Orchestration
+  // Single Source of Truth: Voice Agent & Nemotron-3-Nano Multi-Turn Orchestration
   const ambientAgent = useAmbientAgent({
     patientName: authSession?.patientName,
     onDoseLogged: () => {
@@ -648,7 +648,7 @@ export default function Home() {
                               ? `Eleanor: "${ambientAgent.patientTranscript}"`
                               : 'Eleanor speaking...'
                             : ambientAgent.isThinking
-                            ? 'Analyzing with Nemotron-70B...'
+                            ? 'Analyzing with Nemotron-3-Nano...'
                             : ambientAgent.isSpeaking
                             ? 'Speaking response...'
                             : ambientAgent.transcript
@@ -787,7 +787,7 @@ export default function Home() {
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-white border-2 border-[#10B981] px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-fadeIn text-slate-900">
           <span className="w-2.5 h-2.5 rounded-full bg-[#76B900] animate-spin" />
           <p className="text-xs font-bold text-slate-900 tracking-wide">
-            Synthesizing clinical triage with NVIDIA Nemotron-70B...
+            Synthesizing clinical triage with NVIDIA Nemotron-3-Nano...
           </p>
         </div>
       )}

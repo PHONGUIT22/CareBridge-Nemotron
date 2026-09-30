@@ -1,5 +1,5 @@
 /**
- * Nebius Token Factory AI Client for NVIDIA Nemotron-70B
+ * Nebius Token Factory AI Client for NVIDIA Nemotron-3-Nano
  * Re-exports all functionality from nemotronClient
  */
 export * from './nemotronClient.js';

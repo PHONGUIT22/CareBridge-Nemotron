@@ -243,7 +243,7 @@ export function evaluateNemotronGuardrails(input: string): GuardrailEvaluationRe
 export const evaluateBedrockGuardrails = evaluateNemotronGuardrails;
 
 /**
- * OpenAI Function Calling Schemas for NVIDIA Nemotron-70B on Nebius Token Factory
+ * OpenAI Function Calling Schemas for NVIDIA Nemotron-3-Nano on Nebius Token Factory
  */
 export const NEMOTRON_TOOLS_SCHEMAS: OpenAI.ChatCompletionTool[] = [
   {
@@ -315,7 +315,7 @@ export const NEMOTRON_TOOLS_SCHEMAS: OpenAI.ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'clinicalAdvisor',
-      description: 'Evaluate senior symptoms through NVIDIA Nemotron-70B on Nebius Token Factory for clinical triage',
+      description: 'Evaluate senior symptoms through NVIDIA Nemotron-3-Nano on Nebius Token Factory for clinical triage',
       parameters: {
         type: 'object',
         properties: {
@@ -773,7 +773,7 @@ Recent Vitals: ${contextData?.recentVitals || 'Blood Pressure 125/82 mmHg, Blood
 export const invokeBedrockWithStreaming = invokeNemotronWithStreaming;
 
 /**
- * Clinical Symptom & Triage Analyzer (Powered by NVIDIA Nemotron-70B on Nebius)
+ * Clinical Symptom & Triage Analyzer (Powered by NVIDIA Nemotron-3-Nano on Nebius)
  */
 export async function analyzeClinicalQuery(
   patientStatement: string,
@@ -797,7 +797,7 @@ export async function analyzeClinicalQuery(
   const apiKey = process.env.NEBIUS_API_KEY?.trim();
 
   const systemPrompt = `
-You are CareBridge Ambient Clinical AI, an empathetic, geriatric-focused clinical advisor powered by NVIDIA Nemotron-70B deployed on ambient smart displays for seniors.
+You are CareBridge Ambient Clinical AI, an empathetic, geriatric-focused clinical advisor powered by NVIDIA Nemotron-3-Nano deployed on ambient smart displays for seniors.
 Your goal is to provide calming, clinically sound, easily understandable health advice.
 Always emphasize safety. If symptoms indicate an emergency (chest pain, stroke signs, extreme shortness of breath, sudden severe confusion), advise calling 000 / 911 immediately and set urgencyLevel to 'EMERGENCY'.
 Context of patient:
