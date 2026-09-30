@@ -40,7 +40,7 @@ Millions of older adults struggle with polypharmacy regimens, leading to acciden
 
 | Category / Prize Target | CareBridge Implementation | Runtime Evidence & Verification |
 | :--- | :--- | :--- |
-| **NVIDIA AI Challenge & Nebius Token Factory** | Full migration to **Nebius Token Factory** inference platform running open-weights **`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`**. Sub-350ms Time to First Token (TTFT) via OpenAI-compatible endpoints with native function calling and clinical safety guardrails. | [`backend-mcp/src/ai/nebiusClient.ts`](./backend-mcp/src/ai/nebiusClient.ts)<br>[`backend-mcp/src/tools/clinicalAdvisor.ts`](./backend-mcp/src/tools/clinicalAdvisor.ts)<br>Passing tests in `nemotronEnterprise.test.ts`. |
+| **NVIDIA AI Challenge & Nebius Token Factory** | Full migration to **Nebius Token Factory** inference platform running open-weights **`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`**. Sub-350ms Time to First Token (TTFT) via OpenAI-compatible endpoints with native function calling and clinical safety guardrails. | [`backend-mcp/src/ai/nemotronClient.ts`](./backend-mcp/src/ai/nemotronClient.ts)<br>[`backend-mcp/src/tools/clinicalAdvisor.ts`](./backend-mcp/src/tools/clinicalAdvisor.ts)<br>Passing tests in `nemotronEnterprise.test.ts`. |
 | **$3,000 Best Use of Tavily Award** | Real-time live web-grounded clinical drug interaction engine. When analyzing complex symptoms or dual prescriptions, dynamically dispatches queries to **Tavily Search API** (`https://api.tavily.com/search`) with targeted prompts (`"FDA drug interaction [Med1] and [Med2] geriatric"`) to return authoritative clinical evidence. | [`backend-mcp/src/services/drugInteractionService.ts`](./backend-mcp/src/services/drugInteractionService.ts)<br>Dedicated `/api/tavily/verify` endpoint in [`backend-mcp/src/server.ts`](./backend-mcp/src/server.ts). |
 | **Model Context Protocol (MCP)** | Production-ready Model Context Protocol (MCP) server implementing **all 3 MCP Primitives**: **Tools** (`CallToolRequestSchema`, `ListToolsRequestSchema`), **Resources** (`ListResourcesRequestSchema`, `ReadResourceRequestSchema`), and **Prompts** (`ListPromptsRequestSchema`, `GetPromptRequestSchema`) over Streamable HTTP (SSE). | [`backend-mcp/src/server.ts`](./backend-mcp/src/server.ts)<br>[`backend-mcp/src/resources/index.ts`](./backend-mcp/src/resources/index.ts)<br>[`backend-mcp/src/prompts/index.ts`](./backend-mcp/src/prompts/index.ts) |
 | **Most Valuable Feedback ($100 + NVIDIA Swag)** | In-depth Developer Experience (DX) Friction Log detailing **10 comprehensive engineering insights** on Nebius Token Factory ergonomics, OpenAI spec compatibility, streaming performance, and MCP tool orchestration. | [`FRICTION_LOG.md`](./FRICTION_LOG.md)<br>Actionable technical feedback for Nebius and NVIDIA platform teams. |
@@ -162,6 +162,8 @@ User Query: "Can I take Ibuprofen with my daily blood thinner Warfarin?"
 - **Live Web Grounding:** The static 15-drug Beers Criteria engine is augmented with dynamic queries to **Tavily Search API** (`https://api.tavily.com/search`).
 - **Targeted Clinical Query Formulation:** Formulates search strings such as `"FDA drug interaction [Med1] and [Med2] geriatric"` or `"clinical guidelines elderly dosage [Med1]"`.
 - **Authoritative Sourcing:** Extracts clinical consensus from FDA, NIH, PubMed, and medical society guidelines to provide seniors and caregivers with up-to-date contraindication alerts.
+- **End-to-End Voice & Chat Orchestration:** When an older adult asks questions such as *"Can I take Warfarin with my daily Baby Aspirin?"*, the query is intelligently routed to `clinicalAdvisor`. NVIDIA Nemotron-3-Nano on Nebius Token Factory coordinates with Tavily Search API to retrieve live FDA warnings, returning synthesized spoken guidance and an interactive **Clinical Triage Card** displaying live search citations and relevance scores.
+- **Resilient Dual-AI Networking (25s Timeout):** Configured with a 25,000ms frontend client timeout (`DEFAULT_TIMEOUT_MS`) to comfortably accommodate deep clinical LLM reasoning + live external web retrieval without client premature aborts.
 
 ---
 
@@ -263,6 +265,14 @@ npm run dev
 2. Click 👉 **"Sign in with demo (1-click evaluator pass)"**.
 3. The system automatically seeds 30 days of realistic clinical adherence records, biometric vitals, and inventory into SQLite WAL.
 
+### Step 5: Test Live Clinical Reasoning & Web Grounding (Nemotron + Tavily)
+1. In the right-hand **Agent Console**, click the quick prompt chip:
+   👉 **`[Tavily Drug Check (Warfarin)]`** *(or voice/type: "Can I take Warfarin with my daily Baby Aspirin?")*.
+2. **Watch the live dual-AI orchestration:**
+   - **NVIDIA Nemotron-3-Nano** reasons over the query and dispatches the `clinicalAdvisor` MCP tool.
+   - **Tavily Search Engine** retrieves live FDA contraindication alerts and geriatric bleeding risks in real-time.
+   - The interactive **Clinical Triage Card** displays live web citations, article titles, domain scores, and synthesized spoken guidance.
+
 ---
 
 ## 🧪 Verification & Automated Test Suite
@@ -281,13 +291,13 @@ npm run build --workspace=frontend
 ```
 
 **Verification Results: 67 / 67 Passing Automated Tests (100% Pass Rate Across 7 Suites):**
-- ✅ `tests/nemotronEnterprise.test.ts`: NVIDIA Nemotron-3-Nano client, OpenAI spec compatibility, PII redaction, topic denial guardrails, streaming inference.
-- ✅ `tests/agentTurn.test.ts`: Multi-turn conversational agent orchestration, autonomous tool calling, Sarah Circuit-Breaker escalation.
-- ✅ `tests/beersCriteria.test.ts`: 15-drug Beers Criteria geriatric pharmacology registry and critical interaction checks.
-- ✅ `tests/mcpResourcesPrompts.test.ts`: JSON-RPC 2.0 MCP Resources reading & MCP Prompts execution.
-- ✅ `tests/mcpTools.test.ts`: Independent execution of all 7 registered MCP clinical action tools.
-- ✅ `tests/offlineFallback.test.ts`: Resilient offline heuristic fallback engine and SQLite transactions.
-- ✅ `tests/regression.test.ts`: End-to-end clinical pipeline regression tests.
+- ✅ `tests/agentTurn.test.ts`: Multi-turn conversational agent orchestration, autonomous tool calling, drug-drug interaction triage (Warfarin + Aspirin), and Sarah Circuit-Breaker escalation.
+- ✅ `tests/nemotronEnterprise.test.ts`: NVIDIA Nemotron-3-Nano client on Nebius Token Factory, OpenAI spec compatibility, PII redaction, topic denial guardrails, and streaming inference.
+- ✅ `tests/mcpPrimitives.test.ts`: JSON-RPC 2.0 MCP Resources reading & MCP Prompts execution across the full MCP specification.
+- ✅ `tests/tools.test.ts`: Independent execution of all 7 registered MCP clinical action tools.
+- ✅ `tests/authMultiUser.test.ts`: Multi-user session isolation and demo dataset seeding.
+- ✅ `tests/medicineCrud.test.ts`: Medicine full CRUD operations with dosage, schedule, and inventory safety bounds.
+- ✅ `tests/scheduleAndTemporal.test.ts`: Daily schedule aggregation, adherence metrics, and temporal guard logic.
 
 ---
 
@@ -298,7 +308,7 @@ carebridge-nemotron/
 ├── backend-mcp/                     # BACKEND MCP & NEBIUS/NVIDIA ENGINE
 │   ├── src/
 │   │   ├── ai/                      # AI Client & Speech Engine
-│   │   │   ├── nebiusClient.ts      # NVIDIA Nemotron-3-Nano client on Nebius Token Factory
+│   │   │   ├── nemotronClient.ts    # NVIDIA Nemotron-3-Nano client on Nebius Token Factory
 │   │   │   └── voiceClient.ts       # Ambient voice synthesis engine
 │   │   ├── config/
 │   │   │   └── env.ts               # Environment configuration & API credentials
