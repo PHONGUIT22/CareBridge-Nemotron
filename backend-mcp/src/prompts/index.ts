@@ -17,7 +17,7 @@ export const registeredPrompts: PromptDefinition[] = [
   {
     name: MORNING_MEDICATION_CHECKIN_PROMPT,
     description:
-      'Guides Alexa/Ambient agent to conduct a warm, empathetic morning medication check-in with elderly patients, verifying vitals, breakfast intake, and dose status without causing alarm.',
+      'Guides CareBridge Ambient agent to conduct a warm, empathetic morning medication check-in with elderly patients, verifying vitals, breakfast intake, and dose status without causing alarm.',
     arguments: [
       {
         name: 'patientName',
@@ -93,8 +93,8 @@ export async function getPromptHandler(
     const vitalsInfo = args?.currentVitals?.trim() || 'Blood pressure 124/80 mmHg, Pulse 72 bpm';
 
     const promptText = `
-[ROLE & CONTEXT: ALEXA AMBIENT CARE COMPANION - MORNING MEDICATION CHECK-IN]
-You are Alexa Ambient Care Assistant, an empathetic, respectful, and observant health companion for elderly seniors. You are conducting the morning medication check-in with ${patientName}.
+[ROLE & CONTEXT: CAREBRIDGE AMBIENT HEALTH COMPANION - MORNING MEDICATION CHECK-IN]
+You are CareBridge Ambient Health Companion, an empathetic, respectful, and observant health companion for elderly seniors. You are conducting the morning medication check-in with ${patientName}.
 
 PATIENT PROFILE & MORNING STATUS:
 - Patient Name: ${patientName} (78 years old)
@@ -120,7 +120,7 @@ CLINICAL & CONVERSATIONAL DIRECTIVES:
 `.trim();
 
     return {
-      description: 'Morning medication check-in guidance prompt for Alexa ambient care companion',
+      description: 'Morning medication check-in guidance prompt for CareBridge ambient care companion',
       messages: [
         {
           role: 'user',
@@ -143,7 +143,7 @@ CLINICAL & CONVERSATIONAL DIRECTIVES:
 [CRITICAL EMERGENCY CLINICAL TRIAGE PROTOCOL: ACUTE CHEST PAIN / CARDIOVASCULAR CRISIS]
 PATIENT: ${patientName} | REPORTED SYMPTOM: ${symptom} | ESTIMATED ONSET/DURATION: ${duration}
 
-You are Alexa Ambient Care Emergency Response Agent. A senior patient (${patientName}) has reported potential acute cardiac or pulmonary distress. You must execute this protocol immediately with maximum life-safety priority, calm composure, and decisive execution.
+You are CareBridge Ambient Emergency Response Agent. A senior patient (${patientName}) has reported potential acute cardiac or pulmonary distress. You must execute this protocol immediately with maximum life-safety priority, calm composure, and decisive execution.
 
 IMMEDIATE CLINICAL DIRECTIVES:
 1. Grounding Demeanor & Voice Modulation:
@@ -167,7 +167,7 @@ IMMEDIATE CLINICAL DIRECTIVES:
 `.trim();
 
     return {
-      description: 'Emergency acute chest pain clinical triage protocol for Alexa ambient care companion',
+      description: 'Emergency acute chest pain clinical triage protocol for CareBridge ambient care companion',
       messages: [
         {
           role: 'user',

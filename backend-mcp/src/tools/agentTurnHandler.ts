@@ -27,7 +27,7 @@ export interface AgentTurnResponse {
 /**
  * Offline Heuristic Fallback Engine:
  * Autonomously parses user intent and parameters from natural voice queries
- * when device is offline or AWS Bedrock is unreachable.
+ * when device is offline or Nebius Token Factory is unreachable.
  */
 function resolveOfflineHeuristic(query: string): {
   toolName: string;
@@ -387,7 +387,7 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
     }
   }
 
-  // 3. If Claude responded with pure conversational text ('text') and no tool call
+  // 3. If Nemotron responded with pure conversational text ('text') and no tool call
   if (decision && decision.textResponse && !decision.toolCall) {
     return {
       success: true,
@@ -399,7 +399,7 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
     };
   }
 
-  // 4. If AWS credentials unavailable, network timeout, or Claude returned null -> Activate Heuristic Fallback
+  // 4. If Nebius credentials unavailable, network timeout, or Nemotron returned null -> Activate Heuristic Fallback
   console.info('[agentTurnHandler] Activating Offline Heuristic Fallback for query:', trimmedQuery);
   const heuristic = resolveOfflineHeuristic(trimmedQuery);
 

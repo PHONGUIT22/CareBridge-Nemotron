@@ -75,7 +75,7 @@ export function ClinicalAdviceCard({
         {/* Urgency Badge */}
         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono font-medium mb-4 ${urgencyColors.badgeBg}`}>
           <FontAwesomeIcon icon={urgencyColors.icon} className="text-xs" />
-          <span>Bedrock Triage - {urgencyLevel} Urgency</span>
+          <span>NVIDIA Nemotron Triage - {urgencyLevel} Urgency</span>
         </div>
 
         {/* Title */}
@@ -96,7 +96,7 @@ export function ClinicalAdviceCard({
           </div>
         )}
 
-        {/* AWS SNS SMS Dispatch Notification Banner */}
+        {/* Emergency Alert Dispatcher Notification Banner */}
         {smsDispatch && smsDispatch.delivered ? (
           <div className="mt-3 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -105,7 +105,7 @@ export function ClinicalAdviceCard({
                 <span className="text-xs font-semibold tracking-tight">Urgent SMS Dispatched</span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                {smsDispatch.simulated ? 'AWS Sandbox' : 'AWS SNS Live'}
+                {smsDispatch.simulated ? 'Alert Sandbox' : 'Live Emergency SMS'}
               </span>
             </div>
 
@@ -135,7 +135,7 @@ export function ClinicalAdviceCard({
         ) : urgencyLevel === 'EMERGENCY' ? (
           <div className="mt-3 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-xs text-rose-300">
             <FontAwesomeIcon icon={faTriangleExclamation} className="text-rose-400 text-sm shrink-0" />
-            <span className="leading-snug">Emergency protocol triggered. Caregiver notified via AWS SNS.</span>
+            <span className="leading-snug">Emergency protocol triggered. Caregiver notified via Emergency Alert Dispatcher.</span>
           </div>
         ) : null}
 

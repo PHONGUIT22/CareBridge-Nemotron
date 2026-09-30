@@ -13,7 +13,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT%20Open%20Source-10B981?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](./LICENSE)
 [![Feedback Award](https://img.shields.io/badge/Friction%20Log-Nebius%20DX%20Feedback-00CAFF?style=for-the-badge&logo=buffer&logoColor=white)](./FRICTION_LOG.md)
 
-[📺 Watch Live Demo (YouTube)](https://youtu.be/placeholder) • [💻 Public GitHub Repository](https://github.com/PHONGUIT22/CareBridge-Ambient) • [🏛️ System Architecture](./ARCHITECTURE.md) • [📑 Nebius Friction Log](./FRICTION_LOG.md) • [🎬 3-Minute Demo Script](./DEMO_SCRIPT_3MIN.md) • [📜 MIT License](./LICENSE)
+[📺 Watch Live Demo (YouTube)](https://youtu.be/placeholder) • [💻 Public GitHub Repository](https://github.com/PHONGUIT22/CareBridge-Nemotron) • [🏛️ System Architecture](./ARCHITECTURE.md) • [📑 Nebius Friction Log](./FRICTION_LOG.md) • [🎬 3-Minute Demo Script](./DEMO_SCRIPT_3MIN.md) • [📜 MIT License](./LICENSE)
 
 </div>
 
@@ -234,8 +234,8 @@ flowchart TD
 
 ### Step 1: Clone and Install Dependencies
 ```bash
-git clone https://github.com/PHONGUIT22/CareBridge-Ambient.git
-cd CareBridge-Ambient
+git clone https://github.com/PHONGUIT22/CareBridge-Nemotron.git
+cd CareBridge-Nemotron
 npm install
 ```
 
@@ -244,8 +244,9 @@ Create `.env` in the root or `backend-mcp/.env`:
 ```env
 PORT=3001
 NEBIUS_API_KEY=your_nebius_api_key_here
-NEBIUS_BASE_URL=https://api.tokenfactory.nebius.ai/v1
-NEBIUS_MODEL=nvidia/Llama-3.1-Nemotron-70B-Instruct
+NEBIUS_BASE_URL=https://api.tokenfactory.nebius.com/v1
+NEMOTRON_MODEL_ID=nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+NVIDIA_MODEL_ID=nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
 TAVILY_API_KEY=your_tavily_api_key_here
 ```
 

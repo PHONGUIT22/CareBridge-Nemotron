@@ -153,6 +153,8 @@ export interface ClinicalAdviceResponse {
     recommendedAction?: string;
     smsDispatch?: SMSDispatchInfo;
   };
+  modelUsed?: string;
+  nemotronModelUsed?: string;
   bedrockModelUsed?: string;
   error?: string;
 }

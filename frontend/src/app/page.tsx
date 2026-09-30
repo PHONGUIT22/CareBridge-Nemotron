@@ -292,8 +292,6 @@ export default function Home() {
     },
   });
 
-  const alexaAgent = ambientAgent;
-
   const handleGuardianTakeDose = async (medName?: string) => {
     try {
       await mcpClient.logDoseStatus({
@@ -341,7 +339,7 @@ export default function Home() {
 
   // Trigger voice directly from elevated center Mic button in Bottom Bar
   const handleCenterMicClick = () => {
-    alexaAgent.toggleListening();
+    ambientAgent.toggleListening();
   };
 
   // Render dark loading skeleton until localStorage is read to prevent hydration mismatch
@@ -631,30 +629,30 @@ export default function Home() {
                   {/* ELEVATED CENTER HARDWARE-STYLE MIC BUTTON & DEMO VOICE SIMULATOR */}
                   <div className="relative -top-4 flex items-center justify-center gap-2">
                     {/* Visual voice feedback pill above Mic */}
-                    {(alexaAgent.isListening || alexaAgent.isThinking || alexaAgent.isSpeaking || alexaAgent.isPatientSpeaking) && (
+                    {(ambientAgent.isListening || ambientAgent.isThinking || ambientAgent.isSpeaking || ambientAgent.isPatientSpeaking) && (
                       <div className="absolute -top-11 px-3 py-1.5 rounded-xl bg-white border border-[#10B981]/40 text-slate-900 text-xs font-semibold shadow-lg backdrop-blur-md whitespace-nowrap flex items-center gap-2 z-30 pointer-events-none animate-fadeIn">
                         <span
                           className={`w-2 h-2 rounded-full shrink-0 ${
-                            alexaAgent.isPatientSpeaking
+                            ambientAgent.isPatientSpeaking
                               ? 'bg-purple-600 animate-ping'
-                              : alexaAgent.isThinking
+                              : ambientAgent.isThinking
                               ? 'bg-[#10B981] animate-spin'
-                              : alexaAgent.isListening
+                              : ambientAgent.isListening
                               ? 'bg-[#76B900] animate-ping'
                               : 'bg-[#10B981] animate-pulse'
                           }`}
                         />
                         <span className="max-w-[220px] truncate">
-                          {alexaAgent.isPatientSpeaking
-                            ? alexaAgent.patientTranscript
-                              ? `Eleanor: "${alexaAgent.patientTranscript}"`
+                          {ambientAgent.isPatientSpeaking
+                            ? ambientAgent.patientTranscript
+                              ? `Eleanor: "${ambientAgent.patientTranscript}"`
                               : 'Eleanor speaking...'
-                            : alexaAgent.isThinking
+                            : ambientAgent.isThinking
                             ? 'Analyzing with Nemotron-70B...'
-                            : alexaAgent.isSpeaking
+                            : ambientAgent.isSpeaking
                             ? 'Speaking response...'
-                            : alexaAgent.transcript
-                            ? `"${alexaAgent.transcript}"`
+                            : ambientAgent.transcript
+                            ? `"${ambientAgent.transcript}"`
                             : 'Listening to speech...'}
                         </span>
                       </div>
@@ -663,28 +661,28 @@ export default function Home() {
                     <button
                       onClick={handleCenterMicClick}
                       className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-md active:scale-95 ${
-                        alexaAgent.isListening
+                        ambientAgent.isListening
                           ? 'bg-[#10B981] text-white ring-4 ring-[#76B900]/70 shadow-[0_0_24px_rgba(118,185,0,0.75)]'
-                          : alexaAgent.isThinking
+                          : ambientAgent.isThinking
                           ? 'bg-[#10B981] text-white ring-4 ring-[#76B900]/60 shadow-[0_0_20px_rgba(118,185,0,0.6)] animate-pulse'
-                          : alexaAgent.isSpeaking
+                          : ambientAgent.isSpeaking
                           ? 'bg-[#76B900] text-slate-900 ring-4 ring-[#10B981]/50 shadow-[0_0_20px_rgba(16,185,129,0.6)]'
                           : 'bg-[#1E3A8A] hover:bg-[#1E40AF] text-white'
                       }`}
-                      title={alexaAgent.isListening ? 'Click to stop listening' : 'Speak with CareBridge Ambient assistant'}
+                      title={ambientAgent.isListening ? 'Click to stop listening' : 'Speak with CareBridge Ambient assistant'}
                     >
                       <FontAwesomeIcon
-                        icon={alexaAgent.isThinking ? faCircleNotch : faMicrophone}
-                        className={`text-lg ${alexaAgent.isSpeaking ? 'text-slate-900' : 'text-white'} ${alexaAgent.isThinking ? 'animate-spin' : ''}`}
+                        icon={ambientAgent.isThinking ? faCircleNotch : faMicrophone}
+                        className={`text-lg ${ambientAgent.isSpeaking ? 'text-slate-900' : 'text-white'} ${ambientAgent.isThinking ? 'animate-spin' : ''}`}
                       />
                     </button>
 
                     {/* LOCATION A: 1-CLICK DUAL-TURN DEMO VOICE TOGGLE/CHIP */}
                     <button
                       onClick={() => setIsDemoVoiceModalOpen(true)}
-                      disabled={alexaAgent.isThinking || alexaAgent.isSpeaking || alexaAgent.isPatientSpeaking}
+                      disabled={ambientAgent.isThinking || ambientAgent.isSpeaking || ambientAgent.isPatientSpeaking}
                       className={`h-10 px-2.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${
-                        alexaAgent.isPatientSpeaking
+                        ambientAgent.isPatientSpeaking
                           ? 'bg-purple-600 text-white border-purple-400 ring-2 ring-purple-300 animate-pulse'
                           : 'bg-white/95 hover:bg-purple-50 text-purple-900 border-purple-200 shadow-sm'
                       }`}
@@ -730,12 +728,12 @@ export default function Home() {
 
               {/* 4. CAREBRIDGE NVIDIA GREEN & EMERALD AMBIENT GLOW LIGHT BAR */}
               <AmbientGlow
-                isListening={alexaAgent.isListening}
-                isThinking={alexaAgent.isThinking}
-                isSpeaking={alexaAgent.isSpeaking}
-                isPatientSpeaking={alexaAgent.isPatientSpeaking}
-                patientTranscript={alexaAgent.patientTranscript}
-                transcript={alexaAgent.transcript}
+                isListening={ambientAgent.isListening}
+                isThinking={ambientAgent.isThinking}
+                isSpeaking={ambientAgent.isSpeaking}
+                isPatientSpeaking={ambientAgent.isPatientSpeaking}
+                patientTranscript={ambientAgent.patientTranscript}
+                transcript={ambientAgent.transcript}
                 onTriggerDemoVoice={() => setIsDemoVoiceModalOpen(true)}
               />
             </div>
@@ -752,7 +750,7 @@ export default function Home() {
             >
               <div className="relative rounded-[24px] overflow-hidden bg-white border border-slate-200/80 h-full flex flex-col shadow-md">
                 <AgentConsole
-                  voiceAgent={alexaAgent}
+                  voiceAgent={ambientAgent}
                   onTriggerVisualCard={handleTriggerVisualCard}
                   onTriggerClinicalAdvice={handleTriggerClinicalAdvice}
                   onRefreshData={() => {
@@ -769,14 +767,14 @@ export default function Home() {
       </div>
 
       {/* QUICK VOICE FEEDBACK POPUP DURING LISTENING / THINKING */}
-      {alexaAgent.isListening && (
+      {ambientAgent.isListening && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-white border-2 border-[#10B981] px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-fadeIn text-slate-900">
           <span className="w-2.5 h-2.5 rounded-full bg-[#76B900] animate-ping" />
           <p className="text-xs font-bold text-slate-900 tracking-wide">
-            {alexaAgent.transcript ? `"${alexaAgent.transcript}"` : 'CareBridge Ambient listening... Speak in English'}
+            {ambientAgent.transcript ? `"${ambientAgent.transcript}"` : 'CareBridge Ambient listening... Speak in English'}
           </p>
           <button
-            onClick={alexaAgent.toggleListening}
+            onClick={ambientAgent.toggleListening}
             className="p-1 rounded-lg text-slate-400 hover:text-slate-800 transition-colors"
             title="Stop listening"
           >
@@ -785,7 +783,7 @@ export default function Home() {
         </div>
       )}
 
-      {alexaAgent.isThinking && (
+      {ambientAgent.isThinking && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-white border-2 border-[#10B981] px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-fadeIn text-slate-900">
           <span className="w-2.5 h-2.5 rounded-full bg-[#76B900] animate-spin" />
           <p className="text-xs font-bold text-slate-900 tracking-wide">
@@ -910,10 +908,10 @@ export default function Home() {
         isOpen={isDemoVoiceModalOpen}
         onClose={() => setIsDemoVoiceModalOpen(false)}
         onSelectScenario={async (scenario: MockVoiceScenario) => {
-          await alexaAgent.simulateVoiceScenario(scenario);
+          await ambientAgent.simulateVoiceScenario(scenario);
         }}
-        activeScenarioId={alexaAgent.activeScenarioId}
-        isBusy={alexaAgent.isThinking || alexaAgent.isSpeaking || alexaAgent.isPatientSpeaking}
+        activeScenarioId={ambientAgent.activeScenarioId}
+        isBusy={ambientAgent.isThinking || ambientAgent.isSpeaking || ambientAgent.isPatientSpeaking}
       />
 
       {/* TOAST NOTIFICATION CONTAINER (NON-BLOCKING RESILIENT WARNINGS) */}
@@ -922,7 +920,7 @@ export default function Home() {
       {/* GLOBAL VIEWPORT AMBIENT LIGHT BAR */}
       <div
         className={`fixed bottom-0 left-0 right-0 h-[3.5px] z-50 pointer-events-none transition-all duration-500 ease-out ${
-          alexaAgent.isListening || alexaAgent.isThinking || alexaAgent.isSpeaking
+          ambientAgent.isListening || ambientAgent.isThinking || ambientAgent.isSpeaking
             ? 'opacity-100 ambient-lightbar'
             : 'opacity-0'
         }`}

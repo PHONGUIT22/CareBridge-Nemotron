@@ -103,7 +103,7 @@ export const mcpClient = {
 
   /**
    * POST /api/agent/turn
-   * Bedrock Claude Native Tool-Use & Agentic Loop Orchestrator
+   * NVIDIA Nemotron Native Tool-Use & Agentic Loop Orchestrator
    */
   async executeAgentTurn(query: string): Promise<AgentTurnResponse> {
     const res = await fetchWithTimeout(`${API_BASE_URL}/api/agent/turn`, {
@@ -225,7 +225,7 @@ export const mcpClient = {
 
   /**
    * POST /api/advisor
-   * Send clinical symptom query to AI advisor (AWS Bedrock Claude)
+   * Send clinical symptom query to AI advisor (NVIDIA Nemotron-70B on Nebius)
    */
   async askClinicalAdvisor(query: string): Promise<ClinicalAdviceResponse> {
     const res = await fetchWithTimeout(`${API_BASE_URL}/api/advisor`, {
