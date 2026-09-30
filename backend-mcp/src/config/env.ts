@@ -28,8 +28,8 @@ if (fs.existsSync(cwdEnvPath)) {
 
 export const envConfig = {
   NEBIUS_API_KEY: process.env.NEBIUS_API_KEY || '',
-  NEBIUS_BASE_URL: process.env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.ai/v1',
-  NVIDIA_MODEL_ID: process.env.NVIDIA_MODEL_ID || process.env.NEMOTRON_MODEL_ID || 'nvidia/Llama-3.1-Nemotron-70B-Instruct',
+  NEBIUS_BASE_URL: process.env.NEBIUS_BASE_URL || 'https://api.tokenfactory.nebius.com/v1',
+  NVIDIA_MODEL_ID: process.env.NVIDIA_MODEL_ID || process.env.NEMOTRON_MODEL_ID || 'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B',
   TAVILY_API_KEY: process.env.TAVILY_API_KEY || '',
   NEMOTRON_GUARDRAIL_ID: process.env.NEMOTRON_GUARDRAIL_ID || 'carebridge-nemotron-clinical-guardrail-v1',
   MCP_PORT: Number(process.env.MCP_PORT || process.env.PORT) || 3001,

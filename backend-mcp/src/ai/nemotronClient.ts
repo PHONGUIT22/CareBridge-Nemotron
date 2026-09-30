@@ -75,12 +75,13 @@ export const BEDROCK_GUARDRAIL_VERSION = NEMOTRON_GUARDRAIL_VERSION;
  */
 export const DEFAULT_NEMOTRON_MODEL =
   process.env.NEMOTRON_MODEL_ID?.trim() ||
+  process.env.NVIDIA_MODEL_ID?.trim() ||
   process.env.NEBIUS_MODEL_ID?.trim() ||
   process.env.BEDROCK_MODEL_ID?.trim() ||
-  'nvidia/Llama-3.1-Nemotron-70B-Instruct';
+  'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B';
 
 export const NEBIUS_BASE_URL =
-  process.env.NEBIUS_BASE_URL?.trim() || 'https://api.tokenfactory.nebius.ai/v1';
+  process.env.NEBIUS_BASE_URL?.trim() || 'https://api.tokenfactory.nebius.com/v1';
 
 /**
  * Standard OpenAI SDK client configured for Nebius Token Factory
@@ -427,6 +428,7 @@ export async function invokeNemotronWithTools(
   const cleanUserQuery = guardrailResult.cleanText;
   const modelId =
     process.env.NEMOTRON_MODEL_ID?.trim() ||
+    process.env.NVIDIA_MODEL_ID?.trim() ||
     process.env.NEBIUS_MODEL_ID?.trim() ||
     process.env.BEDROCK_MODEL_ID?.trim() ||
     DEFAULT_NEMOTRON_MODEL;
@@ -436,7 +438,8 @@ export async function invokeNemotronWithTools(
     Boolean(apiKey) &&
     apiKey !== 'PASTE_YOUR_NEBIUS_API_KEY_HERE' &&
     apiKey !== 'your_nebius_api_key_here' &&
-    !apiKey?.includes('PASTE_');
+    !apiKey?.includes('PASTE_') &&
+    !(process.env.VITEST && !process.env.LIVE_AI_TEST);
 
   if (!hasRealCredentials || !apiKey) {
     console.log('[Nemotron Tool-Use] No real Nebius credentials configured. Deferring to offline heuristic fallback.');
@@ -567,6 +570,7 @@ export async function invokeNemotronWithStreaming(
   const cleanQuery = guardrailResult.cleanText;
   const modelId =
     process.env.NEMOTRON_MODEL_ID?.trim() ||
+    process.env.NVIDIA_MODEL_ID?.trim() ||
     process.env.NEBIUS_MODEL_ID?.trim() ||
     process.env.BEDROCK_MODEL_ID?.trim() ||
     DEFAULT_NEMOTRON_MODEL;
@@ -576,7 +580,8 @@ export async function invokeNemotronWithStreaming(
     Boolean(apiKey) &&
     apiKey !== 'PASTE_YOUR_NEBIUS_API_KEY_HERE' &&
     apiKey !== 'your_nebius_api_key_here' &&
-    !apiKey?.includes('PASTE_');
+    !apiKey?.includes('PASTE_') &&
+    !(process.env.VITEST && !process.env.LIVE_AI_TEST);
 
   const systemPrompt = `You are CareBridge Ambient OS, an empathetic, geriatric-focused health assistant running on an ambient smart display for Eleanor Vance (78).
 Provide warm, clear, plain-language guidance. Keep speech concise and compassionate.
@@ -784,6 +789,7 @@ export async function analyzeClinicalQuery(
   const cleanStatement = guardrailResult.cleanText;
   const modelId =
     process.env.NEMOTRON_MODEL_ID?.trim() ||
+    process.env.NVIDIA_MODEL_ID?.trim() ||
     process.env.NEBIUS_MODEL_ID?.trim() ||
     process.env.BEDROCK_MODEL_ID?.trim() ||
     DEFAULT_NEMOTRON_MODEL;
@@ -813,7 +819,8 @@ Respond STRICTLY in valid JSON with NO markdown codeblock markers, matching this
     Boolean(apiKey) &&
     apiKey !== 'PASTE_YOUR_NEBIUS_API_KEY_HERE' &&
     apiKey !== 'your_nebius_api_key_here' &&
-    !apiKey?.includes('PASTE_');
+    !apiKey?.includes('PASTE_') &&
+    !(process.env.VITEST && !process.env.LIVE_AI_TEST);
 
   if (hasRealCredentials && apiKey) {
     try {

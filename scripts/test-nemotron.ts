@@ -4,86 +4,120 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
 
-// 1. Multi-tier environment variable loader for ESM
+// Multi-tier environment variable loader for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const rootEnvPath = path.resolve(__dirname, '../../../.env');
-const backendEnvPath = path.resolve(__dirname, '../../.env');
+const rootEnvPath = path.resolve(__dirname, '../.env');
+const backendEnvPath = path.resolve(__dirname, '../backend-mcp/.env');
 const cwdEnvPath = path.resolve(process.cwd(), '.env');
 
 if (fs.existsSync(rootEnvPath)) dotenv.config({ path: rootEnvPath });
 if (fs.existsSync(backendEnvPath)) dotenv.config({ path: backendEnvPath, override: true });
 if (fs.existsSync(cwdEnvPath)) dotenv.config({ path: cwdEnvPath, override: true });
 
-const baseURL = process.env.NEBIUS_BASE_URL?.trim() || 'https://api.tokenfactory.nebius.ai/v1';
-const modelId =
-  process.env.NEMOTRON_MODEL_ID?.trim() ||
-  process.env.NEBIUS_MODEL_ID?.trim() ||
-  'nvidia/Llama-3.1-Nemotron-70B-Instruct';
 const apiKey = process.env.NEBIUS_API_KEY?.trim();
 
 console.log(`
 =====================================================
   CAREBRIDGE AMBIENT - NEBIUS NEMOTRON DIAGNOSTIC
 =====================================================
-• Base URL:         ${baseURL}
-• Target Model:     ${modelId}
 • Nebius API Key:   ${apiKey ? apiKey.substring(0, 4) + '****' + apiKey.slice(-4) : 'MISSING'}
 =====================================================
 `);
 
 if (!apiKey || apiKey.includes('PASTE_') || apiKey === 'your_nebius_api_key_here') {
   console.log(`[Diagnostic Info] NEBIUS_API_KEY is not configured or is placeholder in .env.`);
-  console.log(`CareBridge will operate using its built-in clinical offline heuristic fallback.`);
-  console.log(`To connect to live Nebius Token Factory, set NEBIUS_API_KEY in your .env file.`);
   process.exit(0);
 }
 
-// 2. Initialize OpenAI Client with Nebius Endpoint
-const client = new OpenAI({
-  baseURL,
-  apiKey,
-});
+const candidateEndpoints = [
+  process.env.NEBIUS_BASE_URL?.trim(),
+  'https://api.tokenfactory.nebius.com/v1',
+  'https://api.tokenfactory.nebius.ai/v1',
+  'https://api.studio.nebius.ai/v1',
+  'https://api.studio.nebius.com/v1',
+].filter(Boolean) as string[];
 
-// 3. Prepare test payload
-const testPrompt = 'Respond in JSON: {"status": "ok", "message": "Nemotron connected"}';
+const uniqueEndpoints = Array.from(new Set(candidateEndpoints.map(e => e.replace(/\/+$/, ''))));
 
-async function runNemotronDiagnostic() {
-  console.log(`[Diagnostic] Sending test prompt to Nebius Token Factory (${modelId})...`);
-  console.log(`[Prompt Content] "${testPrompt}"\n`);
-  const startTime = performance.now();
+async function probeEndpoint(baseUrl: string) {
+  console.log(`\n[Probe] Probing endpoint: ${baseUrl} ...`);
+  const client = new OpenAI({ baseURL: baseUrl, apiKey });
 
   try {
-    const response = await client.chat.completions.create({
-      model: modelId,
+    const startTime = performance.now();
+    const modelsResponse = await client.models.list();
+    const latency = Math.round(performance.now() - startTime);
+
+    const modelList: string[] = [];
+    for await (const m of modelsResponse) {
+      modelList.push(m.id);
+    }
+
+    console.log(`>>> [SUCCESS] models.list() succeeded on ${baseUrl} (${latency}ms)! <<<`);
+    console.log(`Total models found: ${modelList.length}`);
+    console.log(`Available Model IDs:`);
+    modelList.forEach(id => console.log(`  - ${id}`));
+
+    // Find NVIDIA / Nemotron models
+    const nvidiaModels = modelList.filter(id => 
+      id.toLowerCase().includes('nemotron') || 
+      id.toLowerCase().includes('nvidia')
+    );
+
+    console.log(`\nNVIDIA / Nemotron models detected:`, nvidiaModels);
+
+    const preferredModel = process.env.NEMOTRON_MODEL_ID?.trim() || process.env.NVIDIA_MODEL_ID?.trim();
+    const selectedModel =
+      (preferredModel && modelList.includes(preferredModel) ? preferredModel : null) ||
+      nvidiaModels[0] ||
+      modelList[0] ||
+      'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B';
+
+    console.log(`\n[Test Completion] Testing chat completion with model: "${selectedModel}" ...`);
+    const testPrompt = 'Say hello in 5 words';
+    console.log(`[Prompt] "${testPrompt}"`);
+    const compStart = performance.now();
+    const comp = await client.chat.completions.create({
+      model: selectedModel,
       messages: [{ role: 'user', content: testPrompt }],
       max_tokens: 150,
       temperature: 0.1,
     });
-
-    const latency = Math.round(performance.now() - startTime);
-    const textOutput = response.choices?.[0]?.message?.content || '';
+    const compLatency = Math.round(performance.now() - compStart);
 
     console.log(`-----------------------------------------------------`);
     console.log(`>>> [SUCCESS] Nemotron Model Invocation Succeeded! <<<`);
     console.log(`-----------------------------------------------------`);
-    console.log(`• Roundtrip Latency: ${latency}ms`);
+    console.log(`• Working Base URL: ${baseUrl}`);
+    console.log(`• Working Model ID: ${selectedModel}`);
+    console.log(`• Roundtrip Latency: ${compLatency}ms`);
     console.log(`• Raw Model Output:`);
-    console.log(textOutput);
-    console.log(`\n• Usage Metrics:`, response.usage || 'N/A');
+    console.log(comp.choices?.[0]?.message?.content || '');
+    console.log(`\n• Usage Metrics:`, comp.usage || 'N/A');
     console.log(`=====================================================\n`);
-  } catch (error: any) {
-    const latency = Math.round(performance.now() - startTime);
-    console.error(`-----------------------------------------------------`);
-    console.error(`>>> [FAILED] Nebius Nemotron Invocation Failed! <<<`);
-    console.error(`-----------------------------------------------------`);
-    console.error(`• Latency to Error:     ${latency}ms`);
-    console.error(`• Error Message:        ${error.message}`);
-    console.error(`• Status Code:          ${error.status ?? 'N/A'}`);
-    console.error(`=====================================================\n`);
-    process.exit(1);
+    return { success: true, baseUrl, selectedModel };
+  } catch (err: any) {
+    console.log(`[Probe Failed] ${baseUrl} -> ${err.status || ''} ${err.message}`);
+    return { success: false, baseUrl, error: err };
   }
 }
 
-runNemotronDiagnostic();
+async function run() {
+  for (const ep of uniqueEndpoints) {
+    const res = await probeEndpoint(ep);
+    if (res.success) {
+      console.log(`\nRecommended Configuration:`);
+      console.log(`NEBIUS_BASE_URL=${res.baseUrl}`);
+      console.log(`NEMOTRON_MODEL_ID=${res.selectedModel}`);
+      console.log(`NVIDIA_MODEL_ID=${res.selectedModel}`);
+      process.exit(0);
+    }
+  }
+
+  console.error(`\nAll candidate endpoints failed!`);
+  process.exit(1);
+}
+
+run();
