@@ -4,7 +4,15 @@ export interface MockVoiceScenario {
   badge: string;
   prompt: string;
   description: string;
-  targetTool: 'getTodaySchedule' | 'logDoseStatus' | 'orderRefill' | 'ringDeviceHub' | 'clinicalAdvisor';
+  targetTool:
+    | 'getTodaySchedule'
+    | 'logDoseStatus'
+    | 'orderRefill'
+    | 'ringDeviceHub'
+    | 'clinicalAdvisor'
+    | 'negotiateAdherence'
+    | 'recordVitals'
+    | 'checkInteraction';
   actionIcon: string;
   accentColor: string;
 }
@@ -12,6 +20,7 @@ export interface MockVoiceScenario {
 /**
  * Pre-built, clinically realistic demonstration scenarios
  * for zero-speech, dual-turn multimodal video recording.
+ * Covering 100% of CareBridge MCP Action Tools and Tavily Live Drug Verification.
  */
 export const MOCK_VOICE_SCENARIOS: MockVoiceScenario[] = [
   {
@@ -19,7 +28,7 @@ export const MOCK_VOICE_SCENARIOS: MockVoiceScenario[] = [
     title: 'Daily Schedule',
     badge: 'getTodaySchedule',
     prompt: "What's my medicine schedule today?",
-    description: "Queries upcoming daily doses, adherence percentage, and active prescriptions.",
+    description: 'Queries upcoming daily doses, adherence percentage, and active prescriptions.',
     targetTool: 'getTodaySchedule',
     actionIcon: '📅',
     accentColor: '#1E3A8A', // Royal Navy
@@ -63,5 +72,35 @@ export const MOCK_VOICE_SCENARIOS: MockVoiceScenario[] = [
     targetTool: 'clinicalAdvisor',
     actionIcon: '🚨',
     accentColor: '#DC2626', // Crimson Red
+  },
+  {
+    id: 'guardian_refusal',
+    title: 'Medication Refusal (Sarah Circuit-Breaker)',
+    badge: 'negotiateAdherence',
+    prompt: 'I refuse to take my Amlodipine pills today, leave me alone!',
+    description: 'Triggers psychological persuasion by AI Health Guardian (Grandson Leo persona) and escalates Sarah Connor emergency alert when patient intentionally refuses.',
+    targetTool: 'negotiateAdherence',
+    actionIcon: '🛡️',
+    accentColor: '#F59E0B', // Amber
+  },
+  {
+    id: 'tavily_drug_check',
+    title: 'Tavily Live Drug Verification',
+    badge: 'clinicalAdvisor',
+    prompt: 'Can I take Warfarin with my daily Baby Aspirin?',
+    description: 'Queries gastrointestinal bleeding interaction risk, cross-references Beers Criteria, and pulls real-time FDA evidence from Tavily Search API.',
+    targetTool: 'clinicalAdvisor',
+    actionIcon: '🔍',
+    accentColor: '#4F46E5', // Indigo
+  },
+  {
+    id: 'vitals_logging',
+    title: 'Voice Vitals Intake',
+    badge: 'recordVitals',
+    prompt: 'My blood pressure this morning is 125 over 82 and pulse is 72.',
+    description: 'Recognizes vital signs via voice and atomically commits measurements to daily_vitals SQLite WAL.',
+    targetTool: 'recordVitals',
+    actionIcon: '💓',
+    accentColor: '#0EA5E9', // Sky Blue
   },
 ];
