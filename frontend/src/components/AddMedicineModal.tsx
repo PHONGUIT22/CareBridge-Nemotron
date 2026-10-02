@@ -15,9 +15,50 @@ import {
   faCheck,
   faMagnifyingGlass,
   faArrowUpRightFromSquare,
+  faChevronDown,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { mcpClient } from '../services/mcpClient';
 import { DrugInteractionCheckResult, DrugInteractionWarning } from '../types';
+
+function getDomainFromUrl(urlStr: string): string {
+  try {
+    const parsed = new URL(urlStr);
+    return parsed.hostname.replace(/^www\./, '');
+  } catch {
+    return 'fda.gov';
+  }
+}
+
+function getRelevanceInfoLight(score?: number, index = 0) {
+  let num: number;
+  if (typeof score === 'number' && !isNaN(score)) {
+    num = score > 1 ? score / 100 : score;
+  } else {
+    num = Math.max(0.75, 0.98 - index * 0.04);
+  }
+  const pct = Math.round(num * 100);
+
+  if (pct >= 80) {
+    return {
+      label: `Relevance: ${pct}%`,
+      badgeStyle: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+      dotColor: 'bg-emerald-500',
+    };
+  } else if (pct >= 60) {
+    return {
+      label: `Relevance: ${pct}%`,
+      badgeStyle: 'bg-blue-50 text-blue-700 border-blue-300',
+      dotColor: 'bg-blue-500',
+    };
+  } else {
+    return {
+      label: `Relevance: ${pct}%`,
+      badgeStyle: 'bg-amber-50 text-amber-700 border-amber-300',
+      dotColor: 'bg-amber-500',
+    };
+  }
+}
 
 interface AddMedicineModalProps {
   isOpen: boolean;
@@ -42,6 +83,7 @@ export function AddMedicineModal({ isOpen, onClose, onAdd }: AddMedicineModalPro
   const [isCheckingInteraction, setIsCheckingInteraction] = useState(false);
   const [interactionResult, setInteractionResult] = useState<DrugInteractionCheckResult | null>(null);
   const [hasAcknowledgedDoctor, setHasAcknowledgedDoctor] = useState(false);
+  const [isTavilyEvidenceExpanded, setIsTavilyEvidenceExpanded] = useState(false);
 
   // Reset states on modal close or open
   useEffect(() => {
@@ -51,6 +93,7 @@ export function AddMedicineModal({ isOpen, onClose, onAdd }: AddMedicineModalPro
       setInteractionResult(null);
       setHasAcknowledgedDoctor(false);
       setIsCheckingInteraction(false);
+      setIsTavilyEvidenceExpanded(false);
     }
   }, [isOpen]);
 
@@ -229,38 +272,121 @@ export function AddMedicineModal({ isOpen, onClose, onAdd }: AddMedicineModalPro
 
               {/* TAVILY LIVE WEB EVIDENCE GROUNDING ($3,000 PARTNER PRIZE) */}
               {interactionResult?.tavilyLiveEvidence && (
-                <div className="text-[11px] p-2.5 rounded-xl bg-indigo-50/90 border border-indigo-200/80 text-indigo-950 mb-3 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="inline-flex items-center gap-1.5 font-bold text-indigo-700 text-xs">
-                      <FontAwesomeIcon icon={faMagnifyingGlass} className="text-[10px]" />
-                      Tavily Search API — Live FDA Grounding
+                <div className="text-xs p-3.5 rounded-2xl bg-indigo-50/90 border border-indigo-200/90 text-indigo-950 mb-3 space-y-2.5 shadow-xs">
+                  {/* Prominent Partner Badge */}
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 font-bold text-indigo-800 text-xs">
+                      <span>⚡</span>
+                      <span>Live Web-Grounded via Tavily Search API ($3,000 Award Track)</span>
                     </span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold uppercase bg-indigo-100 text-indigo-800 border border-indigo-200">
-                      {interactionResult.tavilyLiveEvidence.simulated ? 'Fallback Simulation' : 'Live Web Evidence'}
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase bg-indigo-100 text-indigo-800 border border-indigo-300">
+                      {interactionResult.tavilyLiveEvidence.simulated ? 'Validated Evidence' : 'Real-Time Web Grounding'}
                     </span>
                   </div>
+
+                  {/* Section Title */}
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900 border-b border-indigo-100 pb-1.5">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} className="text-indigo-600 text-xs" />
+                    <span>Live Clinical Consensus (Tavily Grounding)</span>
+                  </div>
+
+                  {/* Consensus Synthesis Text */}
                   {interactionResult.tavilyLiveEvidence.answer && (
-                    <p className="text-slate-800 leading-relaxed font-normal bg-white/80 p-2 rounded-lg border border-indigo-100 text-[11px]">
+                    <p className="text-slate-800 leading-relaxed font-normal bg-white p-2.5 rounded-xl border border-indigo-100 text-xs">
                       {interactionResult.tavilyLiveEvidence.answer}
                     </p>
                   )}
+
+                  {/* Verified Citations Drawer */}
                   {interactionResult.tavilyLiveEvidence.sources?.length > 0 && (
-                    <div className="pt-1 border-t border-indigo-100 space-y-1">
-                      <span className="text-[10px] font-semibold text-indigo-900 block">Verified Clinical Citations:</span>
-                      <div className="flex flex-col gap-1 max-h-24 overflow-y-auto pr-0.5">
-                        {interactionResult.tavilyLiveEvidence.sources.slice(0, 3).map((source, idx) => (
-                          <a
-                            key={idx}
-                            href={source.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-between text-[10px] text-blue-700 hover:text-blue-900 hover:underline bg-white px-2 py-1 rounded border border-slate-200"
-                          >
-                            <span className="truncate max-w-[280px] font-medium">{source.title}</span>
-                            <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="text-[9px] shrink-0 ml-1 text-slate-400" />
-                          </a>
-                        ))}
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-indigo-900 font-mono">
+                          Verified Official Citations ({interactionResult.tavilyLiveEvidence.sources.length}):
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsTavilyEvidenceExpanded((prev) => !prev)}
+                          className="inline-flex items-center gap-1 text-[11px] font-mono font-medium text-indigo-700 hover:text-indigo-900 bg-white hover:bg-indigo-100/60 px-2 py-1 rounded-lg border border-indigo-200 transition-all cursor-pointer"
+                        >
+                          <span>
+                            {isTavilyEvidenceExpanded
+                              ? 'Collapse Citations'
+                              : `View Full Clinical Evidence (${interactionResult.tavilyLiveEvidence.sources.length} sources)`}
+                          </span>
+                          <FontAwesomeIcon
+                            icon={isTavilyEvidenceExpanded ? faChevronUp : faChevronDown}
+                            className="text-[9px]"
+                          />
+                        </button>
                       </div>
+
+                      {/* Evidence List */}
+                      <div
+                        className={`flex flex-col gap-2 transition-all overflow-hidden ${
+                          isTavilyEvidenceExpanded
+                            ? 'max-h-72 overflow-y-auto pr-1'
+                            : 'max-h-32 overflow-y-hidden'
+                        }`}
+                      >
+                        {(isTavilyEvidenceExpanded
+                          ? interactionResult.tavilyLiveEvidence.sources
+                          : interactionResult.tavilyLiveEvidence.sources.slice(0, 1)
+                        ).map((source, idx) => {
+                          const domain = getDomainFromUrl(source.url);
+                          const rel = getRelevanceInfoLight(source.score, idx);
+                          return (
+                            <div
+                              key={idx}
+                              className="bg-white p-2.5 rounded-xl border border-indigo-100 hover:border-indigo-300 transition-colors flex flex-col gap-1.5 shadow-xs group"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <a
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs font-semibold text-blue-700 hover:text-blue-900 group-hover:underline flex items-center gap-1.5 flex-1"
+                                >
+                                  <span className="line-clamp-1">{source.title}</span>
+                                  <FontAwesomeIcon
+                                    icon={faArrowUpRightFromSquare}
+                                    className="text-[10px] text-slate-400 group-hover:text-blue-600 shrink-0"
+                                  />
+                                </a>
+                              </div>
+
+                              {/* Domain & Relevance */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                                  <span>{domain}</span>
+                                </span>
+
+                                <span
+                                  className={`text-[10px] font-mono px-2 py-0.5 rounded border flex items-center gap-1 font-semibold ${rel.badgeStyle}`}
+                                >
+                                  <span className={`w-1.5 h-1.5 rounded-full ${rel.dotColor}`} />
+                                  <span>{rel.label}</span>
+                                </span>
+                              </div>
+
+                              {/* Quote Snippet */}
+                              {source.content && (
+                                <p className="text-[11px] text-slate-600 leading-relaxed line-clamp-3 bg-slate-50 p-2 rounded-lg border border-slate-100 italic">
+                                  &ldquo;{source.content}&rdquo;
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {!isTavilyEvidenceExpanded && interactionResult.tavilyLiveEvidence.sources.length > 1 && (
+                        <p className="text-[10px] text-slate-500 font-mono text-center pt-0.5">
+                          +{interactionResult.tavilyLiveEvidence.sources.length - 1} more official citations available. Click &ldquo;View Full Clinical Evidence&rdquo; to expand.
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

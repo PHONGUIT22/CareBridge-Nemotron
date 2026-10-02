@@ -831,7 +831,11 @@ export default function Home() {
           clinicalAdviceData?.smsDispatch ||
           null
         }
-        tavilyEvidence={clinicalAdviceData?.tavilyEvidence}
+        tavilyEvidence={
+          clinicalAdviceData?.tavilyEvidence ||
+          clinicalAdviceData?.richCard?.tavilyEvidence ||
+          null
+        }
       />
 
       {/* PRESCRIPTION REFILL ORDER RICH CARD */}
