@@ -43,7 +43,7 @@ export function DemoVoiceModal({
               <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-2">
                 <span>Mock Voice Dialogue Simulator</span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                  Dual-Turn Audio
+                  8 Scenarios • Dual-Turn Audio
                 </span>
               </h3>
               <p className="text-[11px] text-slate-400 font-mono">
@@ -94,7 +94,13 @@ export function DemoVoiceModal({
                     <span className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
                       Scenario {index + 1}: {scenario.title}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                    <span
+                      className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800/90 border"
+                      style={{
+                        borderColor: `${scenario.accentColor}40`,
+                        color: scenario.accentColor,
+                      }}
+                    >
                       {scenario.badge}
                     </span>
                   </div>
@@ -119,7 +125,7 @@ export function DemoVoiceModal({
 
         {/* FOOTER */}
         <div className="px-5 py-3 bg-[#1e293b] border-t border-slate-700 flex items-center justify-between text-xs font-mono text-slate-400">
-          <span>Target Pacing: ~138 wpm (DEMO_SCRIPT_3MIN.md)</span>
+          <span>8 Mock Scenarios • 100% MCP Tools • Pacing: ~138 wpm</span>
           <button
             onClick={onClose}
             className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
