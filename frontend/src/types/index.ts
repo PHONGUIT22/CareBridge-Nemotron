@@ -154,6 +154,8 @@ export interface ClinicalAdviceResponse {
     smsDispatch?: SMSDispatchInfo;
   };
   modelUsed?: string;
+  modelTierUsed?: 'FAST' | 'ULTRA';
+  modelIdUsed?: string;
   nemotronModelUsed?: string;
   bedrockModelUsed?: string;
   tavilyEvidence?: TavilyDrugSearchEvidence | null;
@@ -195,6 +197,8 @@ export interface AgentTurnResponse {
   toolResult: any | null;
   speechResponse: string;
   offlineFallbackUsed?: boolean;
+  modelTierUsed?: 'FAST' | 'ULTRA';
+  modelIdUsed?: string;
   error?: string;
 }
 

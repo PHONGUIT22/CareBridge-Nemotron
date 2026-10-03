@@ -1,4 +1,4 @@
-import { invokeNemotronWithTools, invokeBedrockWithTools } from '../ai/nemotronClient.js';
+import { invokeNemotronWithTools, invokeBedrockWithTools, selectNemotronModelTier } from '../ai/nemotronClient.js';
 import { getTodayScheduleTool } from './getTodaySchedule.js';
 import { logDoseStatusTool } from './logDoseStatus.js';
 import { recordVitalsTool } from './recordVitals.js';
@@ -22,6 +22,8 @@ export interface AgentTurnResponse {
   toolResult: any | null;
   speechResponse: string;
   offlineFallbackUsed?: boolean;
+  modelTierUsed?: 'FAST' | 'ULTRA';
+  modelIdUsed?: string;
 }
 
 /**
@@ -373,8 +375,9 @@ async function executeTool(toolName: string, toolArgs: Record<string, any>): Pro
 export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnResponse> {
   const { query, context } = req;
   const trimmedQuery = query.trim();
+  const tierRouting = selectNemotronModelTier(trimmedQuery);
 
-  // 1. Attempt NVIDIA Nemotron-3-Nano Native Tool-Use via Nebius Token Factory
+  // 1. Attempt NVIDIA Nemotron Native Tool-Use via Nebius Token Factory
   let decision = await invokeNemotronWithTools(trimmedQuery, context);
 
   // 2. If Nemotron returns stop_reason with toolCall
@@ -407,6 +410,8 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
             ? speechResponse
             : (decision.textResponse || speechResponse),
         offlineFallbackUsed: false,
+        modelTierUsed: toolResult?.modelTierUsed || decision.modelTierUsed || tierRouting.tier,
+        modelIdUsed: toolResult?.modelIdUsed || decision.modelIdUsed || tierRouting.modelId,
       };
     } catch (toolExecErr: any) {
       console.warn(`[agentTurnHandler] Error executing tool '${toolName}':`, toolExecErr.message);
@@ -422,6 +427,8 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
       toolResult: null,
       speechResponse: decision.textResponse,
       offlineFallbackUsed: false,
+      modelTierUsed: decision.modelTierUsed || tierRouting.tier,
+      modelIdUsed: decision.modelIdUsed || tierRouting.modelId,
     };
   }
 
@@ -430,6 +437,7 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
   const heuristic = resolveOfflineHeuristic(trimmedQuery);
 
   if (heuristic) {
+    const heuristicRouting = selectNemotronModelTier(trimmedQuery, heuristic.toolName);
     const { toolResult, speechResponse } = await executeTool(
       heuristic.toolName,
       heuristic.toolArgs
@@ -442,6 +450,8 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
       toolResult,
       speechResponse,
       offlineFallbackUsed: true,
+      modelTierUsed: toolResult?.modelTierUsed || heuristicRouting.tier,
+      modelIdUsed: toolResult?.modelIdUsed || heuristicRouting.modelId,
     };
   }
 
@@ -453,5 +463,7 @@ export async function handleAgentTurn(req: AgentTurnRequest): Promise<AgentTurnR
     toolResult: null,
     speechResponse: 'I am here with you Eleanor. You can tell me when you take your pills, or check your schedule.',
     offlineFallbackUsed: true,
+    modelTierUsed: 'FAST',
+    modelIdUsed: tierRouting.modelId,
   };
 }

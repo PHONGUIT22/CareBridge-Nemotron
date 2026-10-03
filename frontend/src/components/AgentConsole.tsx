@@ -212,7 +212,7 @@ export function AgentConsole({
             {isThinking && (
               <span className="px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[#1E3A8A] text-xs font-mono font-medium flex items-center gap-1">
                 <FontAwesomeIcon icon={faCircleNotch} className="animate-spin text-[10px]" />
-                Thinking (Nemotron-3-Nano)
+                Thinking (Nemotron Cascading AI)
               </span>
             )}
             {isSpeaking && (
@@ -340,11 +340,27 @@ export function AgentConsole({
           return (
             <div key={msg.id} className="flex flex-col gap-2 items-start max-w-[95%] animate-fadeIn">
               {/* Header Tag */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <div className="w-5 h-5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center text-xs">
                   <FontAwesomeIcon icon={faShieldHalved} />
                 </div>
                 <span className="text-xs font-bold text-slate-900 tracking-tight">CareBridge Copilot</span>
+                {/* Multi-Model Cascading Badge (Nemotron-3-Nano vs Ultra) */}
+                {msg.modelTierUsed === 'ULTRA' ? (
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center gap-1 shadow-2xs"
+                    title={msg.modelIdUsed || 'nvidia/Nemotron-3-Ultra-550b-a55b'}
+                  >
+                    <span>🧠</span> NVIDIA Nemotron-3-Ultra (Deep Clinical Triage)
+                  </span>
+                ) : (
+                  <span
+                    className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center gap-1 shadow-2xs"
+                    title={msg.modelIdUsed || 'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B'}
+                  >
+                    <span>⚡</span> NVIDIA Nemotron-3-Nano (Fast Call)
+                  </span>
+                )}
                 {msg.urgencyLevel && (
                   <span
                     className={`px-2 py-0.5 rounded-full text-xs font-mono font-medium border ${urgencyBadgeStyle(

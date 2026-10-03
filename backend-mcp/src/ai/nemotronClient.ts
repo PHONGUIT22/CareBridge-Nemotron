@@ -12,6 +12,8 @@ export interface ClinicalAnalysisResult {
   guardrailTriggered?: boolean;
   guardrailPolicy?: string;
   redactedPii?: boolean;
+  modelTierUsed?: 'FAST' | 'ULTRA';
+  modelIdUsed?: string;
 }
 
 export interface NemotronToolUseDecision {
@@ -23,6 +25,8 @@ export interface NemotronToolUseDecision {
   };
   textResponse?: string;
   rawResponse?: any;
+  modelTierUsed?: 'FAST' | 'ULTRA';
+  modelIdUsed?: string;
 }
 export type BedrockToolUseDecision = NemotronToolUseDecision;
 
@@ -79,6 +83,110 @@ export const DEFAULT_NEMOTRON_MODEL =
   process.env.NEBIUS_MODEL_ID?.trim() ||
   process.env.BEDROCK_MODEL_ID?.trim() ||
   'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B';
+
+export const DEFAULT_NEMOTRON_FAST_MODEL =
+  process.env.NEMOTRON_FAST_MODEL?.trim() ||
+  process.env.NVIDIA_FAST_MODEL?.trim() ||
+  DEFAULT_NEMOTRON_MODEL;
+
+export const DEFAULT_NEMOTRON_REASONING_MODEL =
+  process.env.NEMOTRON_REASONING_MODEL?.trim() ||
+  process.env.NVIDIA_REASONING_MODEL?.trim() ||
+  'nvidia/Nemotron-3-Ultra-550b-a55b';
+
+/**
+ * Dynamic Multi-Model Cascading: Tiered AI Model Routing
+ * Routes routine queries to Nemotron-3-Nano (Fast Call) and complex/acute queries to Nemotron-3-Ultra / Super (Deep Clinical Triage).
+ */
+export function selectNemotronModelTier(
+  query: string,
+  toolHint?: string
+): { modelId: string; tier: 'FAST' | 'ULTRA'; reason: string } {
+  const lower = query.toLowerCase();
+
+  // 1. Acute clinical triage & emergency signs -> ULTRA Tier
+  const isAcuteEmergency =
+    lower.includes('chest pain') ||
+    lower.includes('shortness of breath') ||
+    lower.includes('fainted') ||
+    lower.includes('fainting') ||
+    lower.includes('stroke') ||
+    lower.includes('heart attack') ||
+    lower.includes('crushing') ||
+    lower.includes('allergic shock') ||
+    lower.includes('anaphylaxis') ||
+    lower.includes('unconscious') ||
+    lower.includes('cannot breathe') ||
+    lower.includes('difficulty breathing') ||
+    lower.includes('acute_chest_pain_triage');
+
+  if (isAcuteEmergency) {
+    return {
+      modelId: DEFAULT_NEMOTRON_REASONING_MODEL,
+      tier: 'ULTRA',
+      reason: 'Acute emergency symptom triage (Ultra deep reasoning required)',
+    };
+  }
+
+  // 2. Polypharmacy triage (>= 3 medications or complex pharmacokinetics/contraindications)
+  const medicationKeywords = [
+    'warfarin',
+    'aspirin',
+    'amlodipine',
+    'atorvastatin',
+    'lipitor',
+    'metformin',
+    'lisinopril',
+    'furosemide',
+    'digoxin',
+    'omeprazole',
+    'clopidogrel',
+    'plavix',
+    'spironolactone',
+    'levothyroxine',
+    'ibuprofen',
+  ];
+  const matchedMeds = medicationKeywords.filter((med) => lower.includes(med));
+
+  const isPolypharmacy =
+    matchedMeds.length >= 3 ||
+    lower.includes('polypharmacy') ||
+    lower.includes('pharmacokinetics') ||
+    (lower.includes('contraindication') && matchedMeds.length >= 2);
+
+  if (isPolypharmacy) {
+    return {
+      modelId: DEFAULT_NEMOTRON_REASONING_MODEL,
+      tier: 'ULTRA',
+      reason: `Polypharmacy & complex pharmacokinetic triage (${matchedMeds.length} medications referenced)`,
+    };
+  }
+
+  // High clinical risk tool hint
+  if (
+    toolHint === 'clinicalAdvisor' &&
+    (lower.includes('severe') ||
+      lower.includes('bleeding') ||
+      lower.includes('hemorrhage') ||
+      lower.includes('kidney') ||
+      lower.includes('renal') ||
+      lower.includes('arrhythmia') ||
+      lower.includes('rhabdomyolysis'))
+  ) {
+    return {
+      modelId: DEFAULT_NEMOTRON_REASONING_MODEL,
+      tier: 'ULTRA',
+      reason: 'Complex clinical guideline & adverse event triage',
+    };
+  }
+
+  // 3. Fast Tier (routine queries)
+  return {
+    modelId: DEFAULT_NEMOTRON_FAST_MODEL,
+    tier: 'FAST',
+    reason: 'Everyday ambient routine call (Nano-30B fast call)',
+  };
+}
 
 export const NEBIUS_BASE_URL =
   process.env.NEBIUS_BASE_URL?.trim() || 'https://api.tokenfactory.nebius.com/v1';
@@ -415,25 +523,27 @@ export const MCP_TOOLS_SCHEMAS = NEMOTRON_TOOLS_SCHEMAS;
  */
 export async function invokeNemotronWithTools(
   userQuery: string,
-  contextData?: { currentMeds?: string[]; recentVitals?: string }
+  contextData?: { currentMeds?: string[]; recentVitals?: string },
+  preferredModel?: string
 ): Promise<NemotronToolUseDecision | null> {
   // Apply Nemotron Safety Guardrails
   const guardrailResult = evaluateNemotronGuardrails(userQuery);
+  const cleanUserQuery = guardrailResult.cleanText;
+  const routing = selectNemotronModelTier(cleanUserQuery);
+  const modelId = preferredModel?.trim() || routing.modelId;
+  const modelTier = preferredModel
+    ? (modelId.toLowerCase().includes('ultra') || modelId.toLowerCase().includes('super') ? 'ULTRA' : 'FAST')
+    : routing.tier;
+
   if (guardrailResult.isBlocked && guardrailResult.guardrailResponse) {
     console.log(`[Nemotron Safety Guardrail] Intercepted blocked topic in tool-use: ${guardrailResult.blockReason}`);
     return {
       stopReason: 'guardrail_intervened',
       textResponse: guardrailResult.guardrailResponse.speechResponse,
+      modelTierUsed: modelTier,
+      modelIdUsed: modelId,
     };
   }
-
-  const cleanUserQuery = guardrailResult.cleanText;
-  const modelId =
-    process.env.NEMOTRON_MODEL_ID?.trim() ||
-    process.env.NVIDIA_MODEL_ID?.trim() ||
-    process.env.NEBIUS_MODEL_ID?.trim() ||
-    process.env.BEDROCK_MODEL_ID?.trim() ||
-    DEFAULT_NEMOTRON_MODEL;
 
   const apiKey = process.env.NEBIUS_API_KEY?.trim();
   const hasRealCredentials =
@@ -466,7 +576,7 @@ Based on the user's spoken request, choose the single most relevant tool from th
 
 If no tool is needed (such as a greeting or simple conversation), respond directly with compassionate, reassuring text strictly under 20 words for fast speech rendering.`;
 
-    console.log(`[Nemotron Tool-Use] Invoking ${modelId} via Nebius Token Factory with OpenAI function calling schemas...`);
+    console.log(`[Nemotron Tool-Use] Invoking ${modelId} (${modelTier} tier) via Nebius Token Factory with OpenAI function calling schemas...`);
     const completion = await openai.chat.completions.create({
       model: modelId,
       messages: [
@@ -510,6 +620,8 @@ If no tool is needed (such as a greeting or simple conversation), respond direct
       toolCall,
       textResponse: textResponse?.trim(),
       rawResponse: completion,
+      modelTierUsed: modelTier,
+      modelIdUsed: modelId,
     };
   } catch (err: any) {
     console.warn(`[Nemotron Tool-Use] Nebius call failed (${err?.name || 'Error'}: ${err?.message || err}). Falling back smoothly to offline heuristic fallback.`);
@@ -779,27 +891,31 @@ export const invokeBedrockWithStreaming = invokeNemotronWithStreaming;
  */
 export async function analyzeClinicalQuery(
   patientStatement: string,
-  contextData?: { currentMeds?: string[]; recentVitals?: string }
+  contextData?: { currentMeds?: string[]; recentVitals?: string },
+  preferredModel?: string
 ): Promise<ClinicalAnalysisResult> {
   // 1. Run CareBridge Clinical Guardrails (Powered by Nemotron Safety)
   const guardrailResult = evaluateNemotronGuardrails(patientStatement);
+  const cleanStatement = guardrailResult.cleanText;
+  const routing = selectNemotronModelTier(cleanStatement, 'clinicalAdvisor');
+  const modelId = preferredModel?.trim() || routing.modelId;
+  const modelTier = preferredModel
+    ? (modelId.toLowerCase().includes('ultra') || modelId.toLowerCase().includes('super') ? 'ULTRA' : 'FAST')
+    : routing.tier;
+
   if (guardrailResult.isBlocked && guardrailResult.guardrailResponse) {
     console.log(`[Nemotron Safety Guardrail] Intercepted blocked topic in clinical analysis: ${guardrailResult.blockReason}`);
-    return guardrailResult.guardrailResponse;
+    return {
+      ...guardrailResult.guardrailResponse,
+      modelTierUsed: modelTier,
+      modelIdUsed: modelId,
+    };
   }
-
-  const cleanStatement = guardrailResult.cleanText;
-  const modelId =
-    process.env.NEMOTRON_MODEL_ID?.trim() ||
-    process.env.NVIDIA_MODEL_ID?.trim() ||
-    process.env.NEBIUS_MODEL_ID?.trim() ||
-    process.env.BEDROCK_MODEL_ID?.trim() ||
-    DEFAULT_NEMOTRON_MODEL;
 
   const apiKey = process.env.NEBIUS_API_KEY?.trim();
 
   const systemPrompt = `
-You are CareBridge Ambient Clinical AI, an empathetic, geriatric-focused clinical advisor powered by NVIDIA Nemotron-3-Nano deployed on ambient smart displays for seniors.
+You are CareBridge Ambient Clinical AI, an empathetic, geriatric-focused clinical advisor powered by NVIDIA Nemotron (${modelTier} tier: ${modelId}) deployed on ambient smart displays for seniors.
 Your goal is to provide calming, clinically sound, easily understandable health advice.
 Always emphasize safety. If symptoms indicate an emergency (chest pain, stroke signs, extreme shortness of breath, sudden severe confusion), advise calling 000 / 911 immediately and set urgencyLevel to 'EMERGENCY'.
 Context of patient:
@@ -826,7 +942,7 @@ Respond STRICTLY in valid JSON with NO markdown codeblock markers, matching this
 
   if (hasRealCredentials && apiKey) {
     try {
-      console.log(`[Nemotron Invocation] Target Model ID: ${modelId}`);
+      console.log(`[Nemotron Invocation] Target Model ID: ${modelId} (${modelTier} tier - ${routing.reason})`);
       const openai = new OpenAI({
         baseURL: NEBIUS_BASE_URL,
         apiKey,
@@ -881,6 +997,8 @@ Respond STRICTLY in valid JSON with NO markdown codeblock markers, matching this
           'Rest seated for 15 minutes and monitor',
         guardrailTriggered: false,
         redactedPii: guardrailResult.piiRedacted,
+        modelTierUsed: modelTier,
+        modelIdUsed: modelId,
       };
 
       return result;
@@ -910,6 +1028,8 @@ Respond STRICTLY in valid JSON with NO markdown codeblock markers, matching this
       recommendedAction: 'Rest seated upright, maintain airway, emergency SMS delivered',
       guardrailTriggered: false,
       redactedPii: guardrailResult.piiRedacted,
+      modelTierUsed: modelTier,
+      modelIdUsed: modelId,
     };
   }
 
@@ -930,5 +1050,7 @@ Respond STRICTLY in valid JSON with NO markdown codeblock markers, matching this
     recommendedAction: isDizzy ? 'Rest seated for 15 minutes and hydrate' : 'Continue daily rest',
     guardrailTriggered: false,
     redactedPii: guardrailResult.piiRedacted,
+    modelTierUsed: modelTier,
+    modelIdUsed: modelId,
   };
 }

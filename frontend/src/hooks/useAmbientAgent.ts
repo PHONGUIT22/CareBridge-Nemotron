@@ -22,6 +22,8 @@ export interface ChatMessage {
   timestamp: string;
   isSimulated?: boolean;
   senderLabel?: string;
+  modelTierUsed?: 'FAST' | 'ULTRA';
+  modelIdUsed?: string;
   toolCall?: {
     toolName: string;
     args: any;
@@ -31,6 +33,8 @@ export interface ChatMessage {
     urgencyLevel?: string;
     actionAdvice?: string;
     clinicalExplanation?: string;
+    modelTierUsed?: 'FAST' | 'ULTRA';
+    modelIdUsed?: string;
   };
   urgencyLevel?: string;
   actionAdvice?: string;
@@ -360,6 +364,8 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
         },
         speechResponse,
         offlineFallbackUsed: true,
+        modelTierUsed: 'ULTRA',
+        modelIdUsed: 'nvidia/Nemotron-3-Ultra-550b-a55b',
       };
     }
 
@@ -559,6 +565,8 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
         },
         speechResponse,
         offlineFallbackUsed: true,
+        modelTierUsed: 'ULTRA',
+        modelIdUsed: 'nvidia/Nemotron-3-Ultra-550b-a55b',
       };
     }
 
@@ -570,6 +578,8 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
       toolResult: null,
       speechResponse: "I have recorded your observation and synchronized it with CareBridge.",
       offlineFallbackUsed: true,
+      modelTierUsed: 'FAST',
+      modelIdUsed: 'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B',
     };
   }
 
@@ -717,11 +727,31 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
           ]);
         }
 
+        const tierUsed: 'FAST' | 'ULTRA' =
+          turnRes?.modelTierUsed ||
+          toolResult?.modelTierUsed ||
+          (toolName === 'clinicalAdvisor' &&
+          (trimmed.toLowerCase().includes('chest pain') ||
+            trimmed.toLowerCase().includes('stroke') ||
+            trimmed.toLowerCase().includes('warfarin') ||
+            trimmed.toLowerCase().includes('shortness of breath'))
+            ? 'ULTRA'
+            : 'FAST');
+
+        const modelIdUsed =
+          turnRes?.modelIdUsed ||
+          toolResult?.modelIdUsed ||
+          (tierUsed === 'ULTRA'
+            ? 'nvidia/Nemotron-3-Ultra-550b-a55b'
+            : 'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B');
+
         const agentMsg: ChatMessage = {
           id: `copilot_${Date.now()}`,
           sender: 'assistant',
           text: reply,
           timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+          modelTierUsed: tierUsed,
+          modelIdUsed,
           toolCall: toolName
             ? {
                 toolName,
@@ -736,6 +766,8 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
                   toolResult?.richCard?.advice,
                 clinicalExplanation:
                   toolResult?.clinicalExplanation || toolResult?.richCard?.clinicalExplanation,
+                modelTierUsed: tierUsed,
+                modelIdUsed,
               }
             : undefined,
           urgencyLevel: toolResult?.urgencyLevel || toolResult?.richCard?.urgencyLevel,

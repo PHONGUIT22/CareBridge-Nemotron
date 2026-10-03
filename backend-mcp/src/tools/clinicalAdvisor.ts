@@ -103,6 +103,8 @@ export const clinicalAdvisorTool = {
         clinicalExplanation: analysis.clinicalExplanation,
         urgencyLevel: analysis.urgencyLevel,
         recommendedAction: analysis.recommendedAction,
+        modelTierUsed: analysis.modelTierUsed || 'FAST',
+        modelIdUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
         smsDispatch: smsDispatchResult
           ? {
               delivered: true,
@@ -115,12 +117,11 @@ export const clinicalAdvisorTool = {
           : undefined,
       },
       tavilyEvidence,
-      modelUsed:
-        process.env.NEMOTRON_MODEL_ID || process.env.NVIDIA_MODEL_ID || process.env.NEBIUS_MODEL_ID || DEFAULT_NEMOTRON_MODEL,
-      nemotronModelUsed:
-        process.env.NEMOTRON_MODEL_ID || process.env.NVIDIA_MODEL_ID || process.env.NEBIUS_MODEL_ID || DEFAULT_NEMOTRON_MODEL,
-      bedrockModelUsed:
-        process.env.NEMOTRON_MODEL_ID || process.env.NVIDIA_MODEL_ID || process.env.NEBIUS_MODEL_ID || process.env.BEDROCK_MODEL_ID || DEFAULT_NEMOTRON_MODEL,
+      modelTierUsed: analysis.modelTierUsed || 'FAST',
+      modelIdUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
+      modelUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
+      nemotronModelUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
+      bedrockModelUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
     };
   },
 };
