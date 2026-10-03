@@ -35,6 +35,9 @@ export const envConfig = {
   NEMOTRON_REASONING_MODEL: process.env.NEMOTRON_REASONING_MODEL || process.env.NVIDIA_REASONING_MODEL || 'nvidia/Nemotron-3-Ultra-550b-a55b',
   TAVILY_API_KEY: process.env.TAVILY_API_KEY || '',
   NEMOTRON_GUARDRAIL_ID: process.env.NEMOTRON_GUARDRAIL_ID || 'carebridge-nemotron-clinical-guardrail-v1',
+  EMERGENCY_WEBHOOK_URL: process.env.EMERGENCY_WEBHOOK_URL || '',
+  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
+  TELEGRAM_CHAT_ID: process.env.TELEGRAM_CHAT_ID || '',
   MCP_PORT: Number(process.env.MCP_PORT || process.env.PORT) || 3001,
   NEXT_PUBLIC_MCP_URL: process.env.NEXT_PUBLIC_MCP_URL || 'http://localhost:3001',
 };
