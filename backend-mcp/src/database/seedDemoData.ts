@@ -178,5 +178,117 @@ export async function seedDemoData(
   });
 
   seedTransaction();
+
+  // 4. Seed senior habit memories and personal preferences
+  try {
+    const existingMemories = db.prepare('SELECT COUNT(*) as count FROM senior_memories WHERE user_id = ?').get(userId) as { count: number };
+    if (!existingMemories || existingMemories.count === 0 || isForce) {
+      if (isForce) {
+        db.prepare('DELETE FROM senior_memories WHERE user_id = ?').run(userId);
+      }
+      const sampleMemories = [
+        {
+          category: 'preference',
+          content: 'Prefers taking morning blood pressure pills at 8:00 AM with a warm glass of water and oatmeal.',
+        },
+        {
+          category: 'habit',
+          content: 'Occasionally reports slight metallic or bitter taste after swallowing Metformin tablets.',
+        },
+        {
+          category: 'clinical_note',
+          content: 'Experienced mild postural dizziness on Day 14 after taking Amlodipine; resolved after sitting for 15 minutes.',
+        },
+      ];
+
+      const insertMemStmt = db.prepare(`
+        INSERT INTO senior_memories (id, user_id, category, content, extracted_at)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+
+      sampleMemories.forEach((mem, idx) => {
+        insertMemStmt.run(
+          `mem_${userId}_${idx + 1}`,
+          userId,
+          mem.category,
+          mem.content,
+          new Date(Date.now() - (idx + 1) * 86400000).toISOString()
+        );
+      });
+    }
+
+    // 5. Seed initial conversation history if empty
+    const existingConvs = db.prepare('SELECT COUNT(*) as count FROM conversation_history WHERE user_id = ?').get(userId) as { count: number };
+    if (!existingConvs || existingConvs.count === 0 || isForce) {
+      if (isForce) {
+        db.prepare('DELETE FROM conversation_history WHERE user_id = ?').run(userId);
+      }
+      const sampleHistory = [
+        {
+          id: `conv_${userId}_1`,
+          sender: 'user',
+          text: "What's my medicine schedule today?",
+          toolName: 'getTodaySchedule',
+          toolArgs: JSON.stringify({}),
+          toolResult: JSON.stringify({ totalDoses: 4, adherenceRate: 92, nextDose: 'Amlodipine 5mg (08:00)' }),
+          urgencyLevel: 'LOW',
+          createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+        },
+        {
+          id: `conv_${userId}_2`,
+          sender: 'assistant',
+          text: "Good morning Eleanor. You have 4 scheduled doses today with 92% adherence. Your next dose is Amlodipine 5mg at 8:00 AM.",
+          toolName: 'getTodaySchedule',
+          toolArgs: JSON.stringify({}),
+          toolResult: JSON.stringify({ totalDoses: 4, adherenceRate: 92, nextDose: 'Amlodipine 5mg (08:00)' }),
+          urgencyLevel: 'LOW',
+          createdAt: new Date(Date.now() - 3600000 * 4 + 2000).toISOString(),
+        },
+        {
+          id: `conv_${userId}_3`,
+          sender: 'user',
+          text: 'I just took my morning Amlodipine pills with breakfast.',
+          toolName: 'logDoseStatus',
+          toolArgs: JSON.stringify({ medicineName: 'Amlodipine (Norvasc) 5mg', status: 'taken' }),
+          toolResult: JSON.stringify({ success: true, medicineName: 'Amlodipine (Norvasc) 5mg', newStatus: 'taken' }),
+          urgencyLevel: 'LOW',
+          createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        },
+        {
+          id: `conv_${userId}_4`,
+          sender: 'assistant',
+          text: "Confirmed! Your morning Amlodipine dose has been recorded as taken.",
+          toolName: 'logDoseStatus',
+          toolArgs: JSON.stringify({ medicineName: 'Amlodipine (Norvasc) 5mg', status: 'taken' }),
+          toolResult: JSON.stringify({ success: true, medicineName: 'Amlodipine (Norvasc) 5mg', newStatus: 'taken' }),
+          urgencyLevel: 'LOW',
+          createdAt: new Date(Date.now() - 3600000 * 2 + 2000).toISOString(),
+        },
+      ];
+
+      const insertConvStmt = db.prepare(`
+        INSERT INTO conversation_history (
+          id, user_id, sender, text, tool_name, tool_args, tool_result, urgency_level, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      sampleHistory.forEach((item) => {
+        insertConvStmt.run(
+          item.id,
+          userId,
+          item.sender,
+          item.text,
+          item.toolName,
+          item.toolArgs,
+          item.toolResult,
+          item.urgencyLevel,
+          item.createdAt
+        );
+      });
+    }
+  } catch (seedExtraErr: any) {
+    console.warn('[Seed] Notice: extra memory seeding bypassed:', seedExtraErr?.message);
+  }
+
   console.log(`>>> [Seed Complete] Created 4 medications, 30 days of biometric vitals and sample adherence logs for user ${userId}!`);
 }

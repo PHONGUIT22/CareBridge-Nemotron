@@ -36,6 +36,7 @@ import { MedicineRepo } from './database/medicineRepo.js';
 import { LogRepo } from './database/logRepo.js';
 import { VitalsRepo } from './database/vitalsRepo.js';
 import { CaregiverRepo } from './database/caregiverRepo.js';
+import { ConversationRepo } from './database/conversationRepo.js';
 
 // Core MCP Tools
 import { getTodayScheduleTool } from './tools/getTodaySchedule.js';
@@ -729,14 +730,93 @@ app.post('/api/guardian/negotiate', async (req: Request, res: Response) => {
 app.post('/api/agent/turn', async (req: Request, res: Response) => {
   try {
     const { query, context } = req.body || {};
+    const userId = extractUserId(req) || 'usr_demo';
     if (!query || typeof query !== 'string') {
       res.status(400).json({ success: false, error: 'Missing user query for agent turn.' });
       return;
     }
+
+    // Persist incoming user turn into SQLite WAL
+    const userMsgId = `user_${Date.now()}`;
+    await ConversationRepo.saveMessage({
+      id: userMsgId,
+      userId,
+      sender: 'user',
+      text: query.trim(),
+      createdAt: new Date().toISOString(),
+    });
+
     const result = await handleAgentTurn({ query, context });
+
+    // Persist assistant response turn into SQLite WAL
+    if (result) {
+      const assistantMsgId = `copilot_${Date.now()}`;
+      await ConversationRepo.saveMessage({
+        id: assistantMsgId,
+        userId,
+        sender: 'assistant',
+        text: result.speechResponse,
+        toolName: result.toolName,
+        toolArgs: result.toolArgs,
+        toolResult: result.toolResult,
+        urgencyLevel: result.toolResult?.urgencyLevel || result.toolResult?.richCard?.urgencyLevel,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
     res.json(result);
   } catch (error: any) {
     console.error('[Server Agent Turn Error]:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// GET /api/agent/history - Load persistent cross-session dialogue turns and senior habit memories
+app.get('/api/agent/history', async (req: Request, res: Response) => {
+  try {
+    const userId = extractUserId(req) || 'usr_demo';
+    const limit = Number(req.query.limit) || 30;
+    const [messages, memories] = await Promise.all([
+      ConversationRepo.getRecentConversations(userId, limit),
+      ConversationRepo.getSeniorMemories(userId),
+    ]);
+    res.json({ success: true, messages, memories });
+  } catch (error: any) {
+    console.error('[Server Agent History Error]:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/agent/sync - Manually persist an ambient voice or simulated dialogue turn
+app.post('/api/agent/sync', async (req: Request, res: Response) => {
+  try {
+    const userId = extractUserId(req) || 'usr_demo';
+    const { message } = req.body || {};
+    if (!message || !message.text) {
+      res.status(400).json({ success: false, error: 'Missing message body.' });
+      return;
+    }
+    const saved = await ConversationRepo.saveMessage({ ...message, userId });
+    res.json({ success: true, message: saved });
+  } catch (error: any) {
+    console.error('[Server Agent Sync Error]:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/agent/memory - Add or update a senior habit, personal preference, or clinical note
+app.post('/api/agent/memory', async (req: Request, res: Response) => {
+  try {
+    const userId = extractUserId(req) || 'usr_demo';
+    const { category, content } = req.body || {};
+    if (!category || !content) {
+      res.status(400).json({ success: false, error: 'Missing category or content.' });
+      return;
+    }
+    const memory = await ConversationRepo.addSeniorMemory(userId, category, content);
+    res.json({ success: true, memory });
+  } catch (error: any) {
+    console.error('[Server Agent Memory Error]:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

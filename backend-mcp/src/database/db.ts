@@ -96,6 +96,28 @@ export function initDB(): DatabaseType {
       email TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS conversation_history (
+      id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT NOT NULL,
+      sender TEXT NOT NULL,
+      text TEXT NOT NULL,
+      tool_name TEXT,
+      tool_args TEXT,
+      tool_result TEXT,
+      urgency_level TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS senior_memories (
+      id TEXT PRIMARY KEY NOT NULL,
+      user_id TEXT NOT NULL,
+      category TEXT NOT NULL, -- 'preference', 'habit', 'clinical_note'
+      content TEXT NOT NULL,   -- e.g. "Prefers morning medications with oatmeal"
+      extracted_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
   `);
 
   // Defensive migration: ensure newer columns exist safely
@@ -175,6 +197,8 @@ export function initDB(): DatabaseType {
     CREATE INDEX IF NOT EXISTS idx_log_user_date ON intake_logs(user_id, date);
     CREATE INDEX IF NOT EXISTS idx_medicines_user ON medicines(user_id);
     CREATE INDEX IF NOT EXISTS idx_vitals_user_date ON daily_vitals(user_id, date);
+    CREATE INDEX IF NOT EXISTS idx_conv_user ON conversation_history(user_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_memories_user ON senior_memories(user_id);
   `);
 
   console.log(`[SQLite] Database successfully connected at: ${DB_PATH}`);
