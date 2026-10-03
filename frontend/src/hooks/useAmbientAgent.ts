@@ -206,47 +206,117 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
   }, [options?.patientName]);
 
   const isBusyRef = useRef<boolean>(false);
+  const isListeningRef = useRef<boolean>(false);
   const recognitionRef = useRef<any>(null);
   const processVoiceQueryRef = useRef<(text: string) => Promise<void>>(async () => {});
   const lastLowStockMedRef = useRef<string | null>(null);
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const accumulatedTranscriptRef = useRef<string>('');
 
+  // 1. Geriatric Speech VAD: continuous listening with adaptive 1.8s silence tolerance & vocal barge-in
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition =
         (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        recognition.continuous = true;
+        recognition.interimResults = true;
         recognition.lang = 'en-US';
 
         recognition.onresult = (event: any) => {
-          if (isBusyRef.current || speechService.isSpeaking()) return;
+          // Vocal Barge-in: if user starts speaking while Copilot or speaker is active, immediately cancel speech
+          if (speechService.isSpeaking()) {
+            console.log('[useAmbientAgent] Vocal barge-in detected! Halting speaker output.');
+            speechService.cancel();
+            setIsSpeaking(false);
+            isBusyRef.current = false;
+          }
 
+          if (isBusyRef.current) return;
+
+          let interimTranscript = '';
           let finalTranscript = '';
+
           for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
+            const item = event.results[i];
+            if (item.isFinal) {
+              finalTranscript += item[0].transcript;
+            } else {
+              interimTranscript += item[0].transcript;
             }
           }
-          const trimmed = finalTranscript.trim();
-          if (!trimmed) return;
 
-          setTranscript(trimmed);
-          processVoiceQueryRef.current(trimmed);
+          if (finalTranscript) {
+            accumulatedTranscriptRef.current = (
+              accumulatedTranscriptRef.current ? accumulatedTranscriptRef.current + ' ' : ''
+            ) + finalTranscript.trim();
+          }
+
+          const currentLiveSpoken = (
+            (accumulatedTranscriptRef.current ? accumulatedTranscriptRef.current + ' ' : '') +
+            interimTranscript
+          ).trim();
+
+          if (!currentLiveSpoken) return;
+
+          // Provide instant visual feedback for spoken syllables
+          setTranscript(currentLiveSpoken);
+
+          // Geriatric Adaptive Silence Debounce (1800ms)
+          // Allows elderly patients to pause naturally to breathe without premature interruption
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = null;
+          }
+
+          silenceTimeoutRef.current = setTimeout(() => {
+            const queryToProcess = (
+              (accumulatedTranscriptRef.current ? accumulatedTranscriptRef.current + ' ' : '') +
+              interimTranscript
+            ).trim();
+
+            accumulatedTranscriptRef.current = '';
+            silenceTimeoutRef.current = null;
+
+            if (queryToProcess && !isBusyRef.current) {
+              processVoiceQueryRef.current(queryToProcess);
+            }
+          }, 1800);
         };
 
         recognition.onerror = (e: any) => {
           if (e.error !== 'no-speech' && e.error !== 'aborted') {
             console.warn('[useAmbientAgent] Recognition error:', e.error);
           }
-          setIsListening(false);
+          if (e.error !== 'no-speech') {
+            setIsListening(false);
+            isListeningRef.current = false;
+          }
         };
-        recognition.onend = () => setIsListening(false);
+
+        recognition.onend = () => {
+          if (isListeningRef.current && !isBusyRef.current) {
+            try {
+              recognition.start();
+            } catch (_) {
+              setIsListening(false);
+              isListeningRef.current = false;
+            }
+          } else {
+            setIsListening(false);
+            isListeningRef.current = false;
+          }
+        };
 
         recognitionRef.current = recognition;
 
         return () => {
+          if (silenceTimeoutRef.current) {
+            clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = null;
+          }
+          isListeningRef.current = false;
           try {
             recognition.abort();
           } catch (_) {}
@@ -255,6 +325,24 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
         };
       }
     }
+  }, []);
+
+  // 2. Touch / Click Barge-In: instantly halt audio playback if senior taps ambient smart display
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleUserTouchInteraction = () => {
+      if (speechService.isSpeaking()) {
+        speechService.cancel();
+        setIsSpeaking(false);
+        isBusyRef.current = false;
+      }
+    };
+    window.addEventListener('click', handleUserTouchInteraction, { capture: true });
+    window.addEventListener('touchstart', handleUserTouchInteraction, { capture: true, passive: true });
+    return () => {
+      window.removeEventListener('click', handleUserTouchInteraction, { capture: true });
+      window.removeEventListener('touchstart', handleUserTouchInteraction, { capture: true });
+    };
   }, []);
 
   const toggleListening = useCallback(() => {
@@ -266,6 +354,7 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
     if (isBusyRef.current && !isListening) {
       if (speechService.isSpeaking()) {
         speechService.cancel();
+        setIsSpeaking(false);
         isBusyRef.current = false;
       } else {
         console.warn('[useAmbientAgent] Cannot toggle listening while agent is thinking');
@@ -274,6 +363,12 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
     }
 
     if (isListening) {
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = null;
+      }
+      accumulatedTranscriptRef.current = '';
+      isListeningRef.current = false;
       try {
         recognitionRef.current.abort();
       } catch (_) {}
@@ -281,13 +376,17 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
     } else {
       speechService.cancel();
       setIsSpeaking(false);
+      isBusyRef.current = false;
       setTranscript('');
+      accumulatedTranscriptRef.current = '';
       try {
+        isListeningRef.current = true;
         recognitionRef.current.start();
         setIsListening(true);
       } catch (err) {
         console.warn('[useAmbientAgent] Failed to start recognition:', err);
         setIsListening(false);
+        isListeningRef.current = false;
       }
     }
   }, [isListening]);
@@ -956,6 +1055,7 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
     },
     [options]
   );
+  processVoiceQueryRef.current = processVoiceQuery;
 
   useEffect(() => {
     processVoiceQueryRef.current = processVoiceQuery;
