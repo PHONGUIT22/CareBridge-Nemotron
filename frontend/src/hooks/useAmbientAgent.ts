@@ -71,6 +71,7 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
       latencyMs: 142,
     },
   ]);
+  const [seniorMemories, setSeniorMemories] = useState<any[]>([]);
   const patientFirstName = (options?.patientName || 'Eleanor').split(' ')[0];
   const [conversation, setConversation] = useState<
     Array<{ sender: 'user' | 'assistant' | 'alexa'; text: string }>
@@ -99,6 +100,82 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
       },
     },
   ]);
+
+  // Hydrate persistent cross-session dialogue turns and senior habit memories from SQLite WAL
+  useEffect(() => {
+    let isMounted = true;
+    async function loadHistory() {
+      try {
+        const historyData = await mcpClient.getAgentHistory(30);
+        if (!isMounted || !historyData?.success) return;
+
+        if (historyData.memories && historyData.memories.length > 0) {
+          setSeniorMemories(historyData.memories);
+        }
+
+        if (historyData.messages && historyData.messages.length > 0) {
+          const hydratedMessages: ChatMessage[] = historyData.messages.map((m: any) => {
+            const toolResult = m.toolResult;
+            const toolArgs = m.toolArgs;
+            return {
+              id: m.id,
+              sender: m.sender,
+              text: m.text,
+              timestamp: m.createdAt
+                ? new Date(m.createdAt).toLocaleTimeString('en-US', { hour12: false })
+                : '08:00:00',
+              modelTierUsed:
+                m.urgencyLevel === 'EMERGENCY' || m.text.toLowerCase().includes('warfarin')
+                  ? 'ULTRA'
+                  : 'FAST',
+              modelIdUsed:
+                m.urgencyLevel === 'EMERGENCY' || m.text.toLowerCase().includes('warfarin')
+                  ? 'nvidia/Nemotron-3-Ultra-550b-a55b'
+                  : 'nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B',
+              toolCall: m.toolName
+                ? {
+                    toolName: m.toolName,
+                    args: toolArgs || {},
+                    result: toolResult,
+                    status: 'success',
+                    urgencyLevel:
+                      m.urgencyLevel || toolResult?.urgencyLevel || toolResult?.richCard?.urgencyLevel,
+                    actionAdvice:
+                      toolResult?.actionAdvice ||
+                      toolResult?.richCard?.actionAdvice ||
+                      toolResult?.richCard?.advice,
+                    clinicalExplanation:
+                      toolResult?.clinicalExplanation || toolResult?.richCard?.clinicalExplanation,
+                  }
+                : undefined,
+              urgencyLevel:
+                m.urgencyLevel || toolResult?.urgencyLevel || toolResult?.richCard?.urgencyLevel,
+              actionAdvice:
+                toolResult?.actionAdvice ||
+                toolResult?.richCard?.actionAdvice ||
+                toolResult?.richCard?.advice,
+              clinicalExplanation:
+                toolResult?.clinicalExplanation || toolResult?.richCard?.clinicalExplanation,
+            };
+          });
+
+          setMessages(hydratedMessages);
+          setConversation(
+            hydratedMessages.map((msg) => ({
+              sender: msg.sender,
+              text: msg.text,
+            }))
+          );
+        }
+      } catch (err: any) {
+        console.warn('[useAmbientAgent] Failed to hydrate history from SQLite WAL:', err.message);
+      }
+    }
+    loadHistory();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (options?.patientName) {
@@ -782,6 +859,32 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
         setConversation((prev) => [...prev, { sender: 'assistant', text: reply }]);
         setMessages((prev) => [...prev, agentMsg]);
 
+        // Sync dialogue turns to SQLite WAL for persistent cross-session memory
+        try {
+          if (!queryOptions?.skipUserMessage) {
+            mcpClient
+              .syncAgentMessage({
+                id: queryOptions?.userMsgId || `user_${Date.now()}`,
+                sender: 'user',
+                text: trimmed,
+                createdAt: new Date().toISOString(),
+              })
+              .catch(() => {});
+          }
+          mcpClient
+            .syncAgentMessage({
+              id: agentMsg.id,
+              sender: 'assistant',
+              text: reply,
+              toolName: toolName || null,
+              toolArgs: toolArgs || null,
+              toolResult: toolResult || null,
+              urgencyLevel: agentMsg.urgencyLevel || null,
+              createdAt: new Date().toISOString(),
+            })
+            .catch(() => {});
+        } catch (_) {}
+
         speakAndRelease(reply);
 
         if (toolName === 'orderRefill') {
@@ -973,6 +1076,7 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
     toolLogs,
     conversation,
     messages,
+    seniorMemories,
     toggleListening,
     processVoiceQuery,
     simulateVoiceScenario,

@@ -432,6 +432,56 @@ export const mcpClient = {
     return res.json();
   },
 
+  /**
+   * GET /api/agent/history
+   * Retrieve persistent cross-session dialogue turns and senior habit memories
+   */
+  async getAgentHistory(limit: number = 30): Promise<{
+    success: boolean;
+    messages: any[];
+    memories: any[];
+  }> {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/agent/history?limit=${limit}`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch agent history: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
+  /**
+   * POST /api/agent/sync
+   * Persist a dialogue message turn in SQLite WAL
+   */
+  async syncAgentMessage(message: any): Promise<{ success: boolean; message?: any }> {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/agent/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to sync agent message: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
+  /**
+   * POST /api/agent/memory
+   * Record a senior habit memory or personal preference
+   */
+  async addSeniorMemory(category: string, content: string): Promise<{ success: boolean; memory?: any }> {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/api/agent/memory`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, content }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to record senior memory: ${res.statusText}`);
+    }
+    return res.json();
+  },
+
   // Backward-compatible alias helpers
   fetchSchedule(dateStr?: string) {
     return this.getSchedule(dateStr);
