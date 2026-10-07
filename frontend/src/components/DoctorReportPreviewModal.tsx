@@ -110,8 +110,8 @@ export function DoctorReportPreviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-[#050811]/85 backdrop-blur-md animate-fadeIn select-none overflow-y-auto">
-      <div className="bg-[#0f172a] border border-slate-700/80 rounded-2xl w-full max-w-3xl flex flex-col shadow-2xl overflow-hidden my-auto max-h-[94vh]">
+    <div className="overflow-hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-[#050811]/85 backdrop-blur-md animate-fadeIn select-none">
+      <div className="bg-[#0f172a] border border-slate-700/80 rounded-2xl w-full max-w-3xl h-[92vh] max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
         {/* 1. TOP MODAL ACTION TOOLBAR */}
         <div className="px-5 py-3.5 bg-[#1e293b] border-b border-slate-700 flex items-center justify-between z-10 shrink-0">
           <div className="flex items-center gap-2.5">
@@ -162,9 +162,9 @@ export function DoctorReportPreviewModal({
         </div>
 
         {/* 2. SCROLLABLE A4 DOCUMENT SHEET VIEWPORT */}
-        <div className="p-4 sm:p-6 bg-slate-900 overflow-y-auto flex justify-center">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 bg-slate-900 flex justify-center">
           {/* A4 PAPER CONTAINER (Standard portrait aspect ratio 1 : 1.414) */}
-          <div className="w-full max-w-[620px] bg-white text-slate-900 rounded-sm shadow-2xl p-6 sm:p-7 flex flex-col gap-4 border border-slate-200 text-left font-sans select-text">
+          <div className="w-full max-w-[620px] h-fit bg-white text-slate-900 rounded-sm shadow-2xl p-6 sm:p-7 flex flex-col gap-4 border border-slate-200 text-left font-sans select-text">
             {/* TOP ROYAL NAVY BAR */}
             <div className="-mt-6 -mx-6 sm:-mt-7 sm:-mx-7 h-2 bg-[#1E3A8A] mb-2" />
 
