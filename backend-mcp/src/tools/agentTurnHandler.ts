@@ -1,4 +1,4 @@
-import { invokeNemotronWithTools, invokeBedrockWithTools, selectNemotronModelTier } from '../ai/nemotronClient.js';
+import { invokeNemotronWithTools, selectNemotronModelTier } from '../ai/nemotronClient.js';
 import { getTodayScheduleTool } from './getTodaySchedule.js';
 import { logDoseStatusTool } from './logDoseStatus.js';
 import { recordVitalsTool } from './recordVitals.js';

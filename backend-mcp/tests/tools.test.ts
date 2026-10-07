@@ -244,7 +244,7 @@ describe('CareBridge Ambient Core MCP Tools Suite', () => {
       expect(result.richCard.medicineName).toBe('Amlodipine (Norvasc) 5mg');
     });
 
-    it('triggers SARAH_CIRCUIT_BREAKER and dispatches simulated SNS SMS when turnCount >= 2 or explicit refusal is passed', async () => {
+    it('triggers SARAH_CIRCUIT_BREAKER and dispatches simulated Emergency SMS alert when turnCount >= 2 or explicit refusal is passed', async () => {
       const result = await negotiateAdherenceTool.handler({
         medicineName: 'Amlodipine (Norvasc) 5mg',
         refusalReason: 'I refuse to take it today',
@@ -255,6 +255,7 @@ describe('CareBridge Ambient Core MCP Tools Suite', () => {
       expect(result.success).toBe(true);
       expect(result.escalationLevel).toBe('SARAH_CIRCUIT_BREAKER');
       expect(result.sarahNotified).toBe(true);
+      expect(result.alertMessageId).toBeDefined();
       expect(result.snsMessageId).toBeDefined();
       expect(result.speechResponse).toContain('Sarah at work (+1 555-0199)');
       expect(result.richCard.callSarahAction).toBe(true);

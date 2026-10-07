@@ -157,7 +157,6 @@ export interface ClinicalAdviceResponse {
   modelTierUsed?: 'FAST' | 'ULTRA';
   modelIdUsed?: string;
   nemotronModelUsed?: string;
-  bedrockModelUsed?: string;
   tavilyEvidence?: TavilyDrugSearchEvidence | null;
   error?: string;
 }
@@ -303,6 +302,7 @@ export interface GuardianNegotiationCardData {
   medicineName: string;
   escalationLevel: EscalationLevel;
   sarahPhone?: string;
+  alertMessageId?: string;
   snsMessageId?: string;
 }
 
@@ -312,6 +312,7 @@ export interface GuardianNegotiationResult {
   speechResponse: string;
   escalationLevel: EscalationLevel;
   sarahNotified: boolean;
+  alertMessageId?: string;
   snsMessageId?: string;
   richCard: GuardianNegotiationCardData;
   error?: string;

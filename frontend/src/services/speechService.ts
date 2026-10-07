@@ -31,7 +31,7 @@ class SpeechService {
     return this.isSpeakingInternal ? this.speechAnalyser : null;
   }
 
-  public getPollyAnalyser(): AnalyserNode | null {
+  public getVoiceAnalyser(): AnalyserNode | null {
     return this.getSpeechAnalyser();
   }
 

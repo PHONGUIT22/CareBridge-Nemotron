@@ -121,7 +121,6 @@ export const clinicalAdvisorTool = {
       modelIdUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
       modelUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
       nemotronModelUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
-      bedrockModelUsed: analysis.modelIdUsed || DEFAULT_NEMOTRON_MODEL,
     };
   },
 };

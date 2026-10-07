@@ -173,7 +173,7 @@ export function GuardianNegotiationCard({
           </div>
           <div className="flex items-center gap-1 text-[#00CAFF]">
             <FontAwesomeIcon icon={faWaveSquare} className="text-xs animate-pulse" />
-            <span className="text-[11px] font-mono">Neural Polly</span>
+            <span className="text-[11px] font-mono">NVIDIA Riva Voice</span>
           </div>
         </div>
 
@@ -203,20 +203,20 @@ export function GuardianNegotiationCard({
                 </span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">
-                AWS SNS Dispatched
+                Emergency Alert Dispatched
               </span>
             </div>
 
             <p className="text-xs text-slate-200 leading-snug">
               {patientName} has refused critical medication. Primary caregiver{' '}
               <strong className="text-white">{caregiverName}</strong> has been dispatched an urgent
-              AWS SNS SMS alert for clinical skip approval.
+              CareBridge Emergency SMS alert for clinical skip approval.
             </p>
 
             <div className="flex items-center justify-between pt-2 border-t border-rose-500/20 text-xs font-mono text-slate-300">
               <span>Contact: {data.sarahPhone || '+1 555-0199'}</span>
               <span className="text-[10px] text-slate-400">
-                {data.snsMessageId ? `Ref: ${data.snsMessageId.substring(0, 12)}...` : 'Status: Alerting'}
+                {(data.alertMessageId || data.snsMessageId) ? `Ref: ${(data.alertMessageId || data.snsMessageId)!.substring(0, 12)}...` : 'Status: Alerting'}
               </span>
             </div>
           </div>

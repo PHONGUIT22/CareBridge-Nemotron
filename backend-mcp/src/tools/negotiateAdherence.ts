@@ -84,7 +84,7 @@ export const DETERMINISTIC_GUARDIAN_SCRIPTS: Record<
 };
 
 export const SARAH_CIRCUIT_BREAKER_SPEECH =
-  'Eleanor, safety protocols mandate that if you refuse your morning heart medication, I must immediately dispatch an AWS SNS urgent alert and connect a call to Sarah at work (+1 555-0199) for clinical skip authorization. Shall I connect you with Sarah right now, or will you take your pill?';
+  'Eleanor, safety protocols mandate that if you refuse your morning heart medication, I must immediately dispatch a high-priority CareBridge Emergency SMS alert and connect a call to Sarah at work (+1 555-0199) for clinical skip authorization. Shall I connect you with Sarah right now, or will you take your pill?';
 
 export const SARAH_PHONE_NUMBER = '+1 555-0199';
 
@@ -145,7 +145,7 @@ export const negotiateAdherenceTool = {
 
     let speechResponse = '';
     let sarahNotified = false;
-    let snsMessageId: string | undefined = undefined;
+    let alertMessageId: string | undefined = undefined;
 
     if (escalationLevel === 'SARAH_CIRCUIT_BREAKER') {
       speechResponse = SARAH_CIRCUIT_BREAKER_SPEECH;
@@ -158,10 +158,10 @@ export const negotiateAdherenceTool = {
           smsPayload,
           'Sarah Connor'
         );
-        snsMessageId = smsResult.messageId;
+        alertMessageId = smsResult.messageId;
       } catch (smsErr) {
-        console.warn('[negotiateAdherence] Failed to dispatch SMS via SNS, simulating delivery:', smsErr);
-        snsMessageId = `sns_sim_${Date.now()}`;
+        console.warn('[negotiateAdherence] Failed to dispatch Emergency Alert SMS, simulating delivery:', smsErr);
+        alertMessageId = `alert_sim_${Date.now()}`;
       }
     } else {
       // Deterministic Persona Persuasion Script
@@ -177,7 +177,8 @@ export const negotiateAdherenceTool = {
       speechResponse,
       escalationLevel,
       sarahNotified,
-      snsMessageId,
+      alertMessageId,
+      snsMessageId: alertMessageId,
       richCard: {
         type: 'GuardianNegotiation',
         guardianName: persona.displayName,
@@ -189,7 +190,8 @@ export const negotiateAdherenceTool = {
         medicineName,
         escalationLevel,
         sarahPhone: SARAH_PHONE_NUMBER,
-        snsMessageId,
+        alertMessageId,
+        snsMessageId: alertMessageId,
       },
     };
   },

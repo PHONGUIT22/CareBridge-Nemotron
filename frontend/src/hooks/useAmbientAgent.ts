@@ -445,7 +445,8 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
         medicineName,
         escalationLevel: 'SARAH_CIRCUIT_BREAKER' as const,
         sarahNotified: true,
-        snsMessageId: `sns_demo_${Date.now()}`,
+        alertMessageId: `alert_demo_${Date.now()}`,
+        snsMessageId: `alert_demo_${Date.now()}`,
       };
 
       const speechResponse =
@@ -469,7 +470,8 @@ export function useAmbientAgent(options?: UseAmbientAgentOptions) {
           speechResponse,
           escalationLevel: 'SARAH_CIRCUIT_BREAKER',
           sarahNotified: true,
-          snsMessageId: richCard.snsMessageId,
+          alertMessageId: richCard.alertMessageId || richCard.snsMessageId,
+          snsMessageId: richCard.alertMessageId || richCard.snsMessageId,
           richCard,
         },
         speechResponse,

@@ -290,7 +290,7 @@ npm run test:nemotron --workspace=backend-mcp
 npm run build --workspace=frontend
 ```
 
-**Verification Results: 67 / 67 Passing Automated Tests (100% Pass Rate Across 7 Suites):**
+**Verification Results: 70 / 70 Passing Automated Tests (100% Pass Rate Across 8 Suites):**
 - ✅ `tests/agentTurn.test.ts`: Multi-turn conversational agent orchestration, autonomous tool calling, drug-drug interaction triage (Warfarin + Aspirin), and Sarah Circuit-Breaker escalation.
 - ✅ `tests/nemotronEnterprise.test.ts`: NVIDIA Nemotron-3-Nano client on Nebius Token Factory, OpenAI spec compatibility, PII redaction, topic denial guardrails, and streaming inference.
 - ✅ `tests/mcpPrimitives.test.ts`: JSON-RPC 2.0 MCP Resources reading & MCP Prompts execution across the full MCP specification.
@@ -298,6 +298,7 @@ npm run build --workspace=frontend
 - ✅ `tests/authMultiUser.test.ts`: Multi-user session isolation and demo dataset seeding.
 - ✅ `tests/medicineCrud.test.ts`: Medicine full CRUD operations with dosage, schedule, and inventory safety bounds.
 - ✅ `tests/scheduleAndTemporal.test.ts`: Daily schedule aggregation, adherence metrics, and temporal guard logic.
+- ✅ `tests/conversationRepo.test.ts`: Cross-session persistent memory hydration, multi-turn history tracking, and senior conversation memory in SQLite WAL.
 
 ---
 
@@ -339,7 +340,7 @@ carebridge-nemotron/
 │   │   ├── utils/
 │   │   │   └── dateUtils.ts         # Timezone & date utilities
 │   │   └── server.ts                # Model Context Protocol SSE server entrypoint
-│   └── tests/                       # 67 automated Vitest tests
+│   └── tests/                       # 70 automated Vitest tests across 8 suites
 │
 ├── frontend/                        # AMBIENT SMART DISPLAY (Next.js 15)
 │   ├── src/

@@ -58,13 +58,9 @@ import {
 } from './services/drugInteractionService.js';
 import {
   evaluateNemotronGuardrails,
-  evaluateBedrockGuardrails,
   invokeNemotronWithStreaming,
-  invokeBedrockWithStreaming,
   NEMOTRON_GUARDRAIL_ID,
   NEMOTRON_GUARDRAIL_VERSION,
-  BEDROCK_GUARDRAIL_ID,
-  BEDROCK_GUARDRAIL_VERSION,
 } from './ai/nemotronClient.js';
 
 // Core MCP Resources & Prompts (Completing all 3 MCP Primitives: Tools + Resources + Prompts)

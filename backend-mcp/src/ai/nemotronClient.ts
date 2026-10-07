@@ -634,7 +634,7 @@ export const invokeBedrockWithTools = invokeNemotronWithTools;
 
 /**
  * Invoke NVIDIA Nemotron streaming inference via Nebius Token Factory
- * Piped directly to AWS Polly to synthesize voice starting from the very first sentence (TTFA < 400ms)
+ * Piped directly to ambient voice synthesis engine starting from the very first sentence (TTFA < 400ms)
  */
 export async function invokeNemotronWithStreaming(
   userQuery: string,
@@ -662,7 +662,7 @@ export async function invokeNemotronWithStreaming(
     // Synthesize guardrail voice response immediately
     let audioBuffer = await synthesizeSpeech(blockedSpeech, options?.voiceId);
     if (!audioBuffer) {
-      audioBuffer = Buffer.from(`RIFF_MOCK_POLLY_GUARDRAIL_AUDIO_${Date.now()}`);
+      audioBuffer = Buffer.from(`RIFF_MOCK_NVIDIA_VOICE_GUARDRAIL_AUDIO_${Date.now()}`);
     }
     timeToFirstAudioMs = Math.min(380, Math.round(performance.now() - startTime));
 
@@ -759,7 +759,7 @@ Recent Vitals: ${contextData?.recentVitals || 'Blood Pressure 125/82 mmHg, Blood
             // Pipe sentence directly to voice synthesis
             let audio = await synthesizeSpeech(completedSentence, options?.voiceId);
             if (!audio) {
-              audio = Buffer.from(`RIFF_MOCK_POLLY_SENTENCE_${sentenceIndex}_${Date.now()}`);
+              audio = Buffer.from(`RIFF_MOCK_NVIDIA_VOICE_SENTENCE_${sentenceIndex}_${Date.now()}`);
             }
 
             if (!timeToFirstAudioMs) {
@@ -786,7 +786,7 @@ Recent Vitals: ${contextData?.recentVitals || 'Blood Pressure 125/82 mmHg, Blood
 
         let audio = await synthesizeSpeech(lastSentence, options?.voiceId);
         if (!audio) {
-          audio = Buffer.from(`RIFF_MOCK_POLLY_SENTENCE_${sentenceIndex}_${Date.now()}`);
+          audio = Buffer.from(`RIFF_MOCK_NVIDIA_VOICE_SENTENCE_${sentenceIndex}_${Date.now()}`);
         }
         if (!timeToFirstAudioMs) {
           timeToFirstAudioMs = Math.round(performance.now() - startTime);
@@ -859,7 +859,7 @@ Recent Vitals: ${contextData?.recentVitals || 'Blood Pressure 125/82 mmHg, Blood
     // Synthesize audio chunk via voice engine
     let audio = await synthesizeSpeech(sentence, options?.voiceId);
     if (!audio) {
-      audio = Buffer.from(`RIFF_STREAMED_POLLY_SENTENCE_${i}_${Date.now()}`);
+      audio = Buffer.from(`RIFF_MOCK_NVIDIA_VOICE_STREAMED_SENTENCE_${i}_${Date.now()}`);
     }
 
     if (i === 0 && !timeToFirstAudioMs) {
