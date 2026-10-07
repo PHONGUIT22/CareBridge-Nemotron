@@ -369,14 +369,14 @@ export default function Home() {
   const isDeskClock = activeTab === 'deskClock';
 
   return (
-    <main
-      className={`min-h-screen font-sans selection:bg-[#2563EB] selection:text-white flex flex-col justify-between transition-colors duration-300 ${
+    <div
+      className={`h-screen w-screen overflow-hidden flex flex-col font-sans selection:bg-[#2563EB] selection:text-white transition-colors duration-300 ${
         isDeskClock ? 'bg-[#050811] text-white' : 'bg-[#F1F5F9] text-slate-900'
       }`}
     >
       {/* 1. TOP SIMULATOR & DEVICE CONTROL HEADER */}
       <header
-        className={`px-4 py-2.5 flex items-center justify-between sticky top-0 z-40 gap-3 backdrop-blur-md transition-colors duration-300 ${
+        className={`h-14 shrink-0 px-4 flex items-center justify-between z-40 gap-3 backdrop-blur-md transition-colors duration-300 ${
           isDeskClock
             ? 'bg-[#0B1120]/95 border-b border-white/[0.08] text-white'
             : 'bg-white/95 border-b border-slate-200/80 text-slate-800 shadow-2xs'
@@ -505,43 +505,34 @@ export default function Home() {
       </header>
 
       {/* 2. MAIN WORKSPACE - ENCAPSULATED DEVICE MOCKUP FRAME */}
-      <div className="flex-1 flex items-center justify-center p-3 sm:p-6 md:p-8">
+      <main className="flex-1 min-h-0 flex items-center justify-center gap-5 p-4 overflow-hidden">
+        {/* DEVICE MOCKUP FRAME 1: MAIN DISPLAY SCREEN */}
         <div
-          className={`w-full transition-all duration-500 ${
-            isDualMode
-              ? 'max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start justify-center'
-              : 'max-w-[440px] mx-auto'
+          className={`h-full max-h-[calc(100vh-5rem)] w-full max-w-[620px] flex flex-col shrink-0 relative rounded-[36px] p-2 sm:p-2.5 overflow-hidden transition-all duration-300 ${
+            isDeskClock
+              ? 'bg-[#0B1528] border border-blue-900/40 shadow-2xl'
+              : 'bg-slate-200/80 border border-slate-300 shadow-xl'
           }`}
         >
-          {/* DEVICE MOCKUP FRAME 1: MAIN DISPLAY SCREEN */}
+          {/* INNER SCREEN CONTAINER */}
           <div
-            className={`${
-              isDualMode ? 'lg:col-span-7 xl:col-span-8' : 'w-full'
-            } relative rounded-[32px] p-2 sm:p-2.5 transition-all duration-300 ${
+            className={`relative rounded-[28px] overflow-hidden flex-1 min-h-0 flex flex-col transition-colors duration-300 ${
               isDeskClock
-                ? 'bg-[#0B1528] border border-blue-900/40 shadow-2xl'
-                : 'bg-slate-200/80 border border-slate-300 shadow-xl'
+                ? 'bg-[#050811] border border-slate-800 text-white'
+                : 'bg-[#F8FAFC] border border-slate-200/60 text-slate-900'
             }`}
           >
-            {/* INNER SCREEN CONTAINER */}
-            <div
-              className={`relative rounded-[24px] overflow-hidden min-h-[720px] max-h-[880px] flex flex-col justify-between transition-colors duration-300 ${
-                isDeskClock
-                  ? 'bg-[#050811] border border-slate-800 text-white'
-                  : 'bg-[#F8FAFC] border border-slate-200/60 text-slate-900'
-              }`}
-            >
-              {/* TOP STATUS NOTCH / HARDWARE BAR */}
-              <div className="w-full flex items-center justify-center pt-2.5 pb-1 relative z-20">
-                <div
-                  className={`w-20 h-1 rounded-full ${
-                    isDeskClock ? 'bg-white/20' : 'bg-slate-300'
-                  }`}
-                />
-              </div>
+            {/* TOP STATUS NOTCH / HARDWARE BAR */}
+            <div className="w-full flex items-center justify-center pt-2.5 pb-1 relative z-20 shrink-0">
+              <div
+                className={`w-20 h-1 rounded-full ${
+                  isDeskClock ? 'bg-white/20' : 'bg-slate-300'
+                }`}
+              />
+            </div>
 
-              {/* SCROLLABLE VIEW CONTENT */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            {/* SCROLLABLE VIEW CONTENT */}
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain overflow-x-hidden">
                 {/* TAB 1: CAREGIVER HUB (PRIMARY DASHBOARD) */}
                 {activeTab === 'caregiver' && (
                   <TodayScheduleView
@@ -589,7 +580,7 @@ export default function Home() {
               </div>
 
               {/* 3. FLOATING BOTTOM NAVIGATION BAR (MATCHES image/3.png, image/4.png, image/7.png, image/8.png) */}
-              <div className="sticky bottom-4 left-0 right-0 w-full px-4 z-30 pointer-events-auto">
+              <div className="shrink-0 w-full px-4 pb-3 pt-2 z-30 pointer-events-auto">
                 <nav
                   className={`relative rounded-2xl px-4 py-2 flex items-center justify-between border shadow-lg backdrop-blur-md transition-colors duration-300 ${
                     isDeskClock
@@ -739,32 +730,31 @@ export default function Home() {
             </div>
           </div>
 
-          {/* DEVICE MOCKUP FRAME 2: AGENT CONSOLE (DUAL VIEW) */}
-          {isDualMode && (
-            <div
-              className={`lg:col-span-5 xl:col-span-4 relative rounded-[32px] p-2 sm:p-2.5 h-[760px] flex flex-col transition-all duration-300 ${
-                isDeskClock
-                  ? 'bg-[#0B1528] border border-blue-900/40 shadow-2xl'
-                  : 'bg-slate-200/80 border border-slate-300 shadow-xl'
-              }`}
-            >
-              <div className="relative rounded-[24px] overflow-hidden bg-white border border-slate-200/80 h-full flex flex-col shadow-md">
-                <AgentConsole
-                  voiceAgent={ambientAgent}
-                  onTriggerVisualCard={handleTriggerVisualCard}
-                  onTriggerClinicalAdvice={handleTriggerClinicalAdvice}
-                  onRefreshData={() => {
-                    triggerGlobalRefresh();
-                    setActiveTab('caregiver');
-                  }}
-                  patientName={authSession?.patientName}
-                  patientAge={authSession?.patientAge}
-                />
-              </div>
+        {/* DEVICE MOCKUP FRAME 2: AGENT CONSOLE (DUAL VIEW) */}
+        {isDualMode && (
+          <div
+            className={`h-full max-h-[calc(100vh-5rem)] w-full max-w-[440px] flex flex-col shrink-0 rounded-[32px] overflow-hidden p-2 sm:p-2.5 transition-all duration-300 ${
+              isDeskClock
+                ? 'bg-[#0B1528] border border-blue-900/40 shadow-2xl'
+                : 'bg-slate-200/80 border border-slate-300 shadow-xl'
+            }`}
+          >
+            <div className="relative rounded-[24px] overflow-hidden bg-white border border-slate-200/80 flex-1 min-h-0 flex flex-col shadow-md">
+              <AgentConsole
+                voiceAgent={ambientAgent}
+                onTriggerVisualCard={handleTriggerVisualCard}
+                onTriggerClinicalAdvice={handleTriggerClinicalAdvice}
+                onRefreshData={() => {
+                  triggerGlobalRefresh();
+                  setActiveTab('caregiver');
+                }}
+                patientName={authSession?.patientName}
+                patientAge={authSession?.patientAge}
+              />
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
+      </main>
 
       {/* QUICK VOICE FEEDBACK POPUP DURING LISTENING / THINKING */}
       {ambientAgent.isListening && (
@@ -930,6 +920,6 @@ export default function Home() {
             : 'opacity-0'
         }`}
       />
-    </main>
+    </div>
   );
 }
