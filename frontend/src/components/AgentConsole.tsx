@@ -109,7 +109,7 @@ export function AgentConsole({
 }: AgentConsoleProps) {
   const [expandedJsonIds, setExpandedJsonIds] = useState<Record<string, boolean>>({});
   const [inputQuery, setInputQuery] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Consume state and actions directly from the voice agent hook
   const isListening = voiceAgent ? voiceAgent.isListening : propIsListening ?? false;
@@ -130,7 +130,12 @@ export function AgentConsole({
 
   // Auto-scroll on new message or thinking state change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages, isThinking]);
 
   const handleSend = () => {
@@ -299,7 +304,8 @@ export function AgentConsole({
 
       {/* 2. MAIN MESSAGE BODY (FULL-HEIGHT AGENTIC CHAT TIMELINE) */}
       <div
-        className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 bg-[#F8FAFC]"
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto overscroll-contain overflow-x-hidden p-4 space-y-4 bg-[#F8FAFC]"
         style={{
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(16, 185, 129, 0.25) transparent',
@@ -460,8 +466,6 @@ export function AgentConsole({
             </span>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* 3. BOTTOM FIXED INPUT BAR */}
