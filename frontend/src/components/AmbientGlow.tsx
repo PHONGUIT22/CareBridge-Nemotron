@@ -245,7 +245,7 @@ export function AmbientGlow({
 
   return (
     <div
-      className={`absolute bottom-0 left-0 right-0 pointer-events-none z-30 transition-all duration-500 ease-out overflow-hidden ${
+      className={`fixed bottom-0 left-0 right-0 w-screen pointer-events-none z-50 transition-all duration-500 ease-out overflow-hidden ${
         isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
       } ${className}`}
       aria-hidden={!isActive}
@@ -262,7 +262,7 @@ export function AmbientGlow({
 
       {/* 2. CONTEXTUAL STATUS PILL WITH EQUALIZER BARS */}
       {showStatusBadge && isActive && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0b1512]/95 border border-[#76B900]/50 backdrop-blur-md shadow-[0_0_20px_rgba(118,185,0,0.35)] transition-all animate-fadeIn">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#0b1512]/95 border border-[#76B900]/50 backdrop-blur-md shadow-[0_0_20px_rgba(118,185,0,0.35)] pointer-events-auto transition-all animate-fadeIn">
           {/* Pulsing Dot */}
           <span
             className={`w-2.5 h-2.5 rounded-full shadow-[0_0_8px_#76B900] ${
@@ -327,7 +327,7 @@ export function AmbientGlow({
         <div className="absolute bottom-4 right-4 pointer-events-auto z-40">
           <button
             onClick={onTriggerDemoVoice}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0d131f]/95 hover:bg-[#1e293b] border border-[#76B900]/50 hover:border-[#76B900] text-emerald-200 hover:text-white text-[11px] font-mono font-bold shadow-[0_0_16px_rgba(118,185,0,0.35)] transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0d131f]/95 hover:bg-[#1e293b] border border-[#76B900]/50 hover:border-[#76B900] text-emerald-200 hover:text-white text-[11px] font-mono font-bold shadow-[0_0_16px_rgba(118,185,0,0.35)] transition-all active:scale-95 pointer-events-auto cursor-pointer"
             title="1-Click Dual-Turn Mock Voice Dialogue Simulator"
           >
             <span>🎭</span>
