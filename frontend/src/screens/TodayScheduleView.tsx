@@ -265,7 +265,7 @@ export function TodayScheduleView({
         </h1>
 
         {/* 2. HERO COMPLIANCE GRADIENT CARD (MATCHES image/3.png & image/6.png) */}
-        <div className="bg-gradient-to-br from-[#1E40AF] via-[#1E3A8A] to-[#2563EB] text-white rounded-[28px] p-5 sm:p-6 shadow-[0_10px_25px_rgba(30,58,138,0.22)] relative overflow-hidden">
+        <div className="bg-gradient-to-br from-[#1E3A8A] via-[#1E40AF] to-[#1D4ED8] text-white rounded-[28px] p-5 sm:p-6 shadow-[0_15px_35px_rgba(30,58,138,0.25)] relative overflow-hidden">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ export function TodayScheduleView({
             <button
               type="button"
               onClick={() => setIsVitalsModalOpen(true)}
-              className="bg-white/25 hover:bg-white/35 backdrop-blur-md border border-white/30 text-white rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <FontAwesomeIcon icon={faHeartPulse} className="text-rose-200 text-xs" />
               <span>{vitals?.systolic && vitals?.diastolic ? `${vitals.systolic}/${vitals.diastolic} BP` : (isDemo ? '124/83 BP' : '--/-- BP')}</span>
@@ -338,7 +338,7 @@ export function TodayScheduleView({
             <button
               type="button"
               onClick={() => setIsVitalsModalOpen(true)}
-              className="bg-white/25 hover:bg-white/35 backdrop-blur-md border border-white/30 text-white rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <FontAwesomeIcon icon={faDroplet} className="text-sky-200 text-xs" />
               <span>{vitals?.bloodSugar ? `${vitals.bloodSugar} Sugar` : (isDemo ? '107.4 Sugar' : '-- Sugar')}</span>
@@ -347,7 +347,7 @@ export function TodayScheduleView({
             <button
               type="button"
               onClick={() => setIsVitalsModalOpen(true)}
-              className="bg-white/25 hover:bg-white/35 backdrop-blur-md border border-white/30 text-white rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
             >
               <FontAwesomeIcon icon={faBolt} className="text-emerald-200 text-xs" />
               <span>{vitals?.heartRate ? `${vitals.heartRate} BPM` : (isDemo ? '73 BPM' : '-- BPM')}</span>
@@ -356,7 +356,7 @@ export function TodayScheduleView({
             <button
               type="button"
               onClick={() => setIsVitalsModalOpen(true)}
-              className="bg-white/25 hover:bg-white/35 backdrop-blur-md border border-white/30 text-white rounded-xl px-2.5 py-1.5 text-xs font-bold flex items-center gap-1 transition-colors ml-auto cursor-pointer shadow-2xs"
+              className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white rounded-xl px-3 py-1.5 text-xs font-semibold flex items-center gap-1 transition-all ml-auto cursor-pointer shadow-xs"
             >
               <FontAwesomeIcon icon={faPencil} className="text-[10px]" />
               <span>+ Log</span>

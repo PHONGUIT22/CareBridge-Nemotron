@@ -506,252 +506,207 @@ export default function Home() {
 
       {/* 2. MAIN WORKSPACE - ENCAPSULATED DEVICE MOCKUP FRAME */}
       <main className="flex-1 min-h-0 flex items-center justify-center gap-5 p-4 overflow-hidden">
-        {/* DEVICE MOCKUP FRAME 1: MAIN DISPLAY SCREEN */}
+        {/* DEVICE MOCKUP FRAME 1: TABLET (SENIOR/CAREGIVER BEDSIDE DISPLAY) */}
         <div
-          className={`h-full max-h-[calc(100vh-5rem)] w-full max-w-[620px] flex flex-col shrink-0 relative rounded-[36px] p-2 sm:p-2.5 overflow-hidden transition-all duration-300 ${
-            isDeskClock
-              ? 'bg-[#0B1528] border border-blue-900/40 shadow-2xl'
-              : 'bg-slate-200/80 border border-slate-300 shadow-xl'
-          }`}
+          className="h-full max-h-[calc(100vh-5.5rem)] w-full max-w-[700px] flex flex-col shrink-0 relative rounded-[40px] border-[10px] border-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] bg-slate-900 overflow-hidden transition-all duration-300"
         >
+          {/* Punch-hole camera notch */}
+          <div className="w-3 h-3 rounded-full bg-slate-950 border border-slate-700 mx-auto my-1 shrink-0 shadow-inner" />
+
           {/* INNER SCREEN CONTAINER */}
           <div
-            className={`relative rounded-[28px] overflow-hidden flex-1 min-h-0 flex flex-col transition-colors duration-300 ${
+            className={`relative rounded-[30px] overflow-hidden flex-1 min-h-0 flex flex-col transition-colors duration-300 ${
               isDeskClock
-                ? 'bg-[#050811] border border-slate-800 text-white'
-                : 'bg-[#F8FAFC] border border-slate-200/60 text-slate-900'
+                ? 'bg-[#050811] text-white'
+                : 'bg-[#F8FAFC] text-slate-900'
             }`}
           >
-            {/* TOP STATUS NOTCH / HARDWARE BAR */}
-            <div className="w-full flex items-center justify-center pt-2.5 pb-1 relative z-20 shrink-0">
-              <div
-                className={`w-20 h-1 rounded-full ${
-                  isDeskClock ? 'bg-white/20' : 'bg-slate-300'
-                }`}
-              />
-            </div>
-
             {/* SCROLLABLE VIEW CONTENT */}
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain overflow-x-hidden">
-                {/* TAB 1: CAREGIVER HUB (PRIMARY DASHBOARD) */}
-                {activeTab === 'caregiver' && (
-                  <TodayScheduleView
-                    authSession={authSession}
-                    refreshTrigger={refreshTrigger}
-                    onDoseToggled={triggerGlobalRefresh}
-                    onSwitchToDeskMode={() => setActiveTab('deskClock')}
-                    onSwitchToHistory={() => setActiveTab('history')}
-                    onOpenPaywall={() => setIsPaywallOpen(true)}
-                    onTriggerGuardianRefusal={handleTriggerGuardianRefusal}
-                    isPro={Boolean(authSession?.isPro)}
-                    caregiverName={authSession?.caregiverName}
-                    patientName={authSession?.patientName}
-                    patientAge={authSession?.patientAge}
-                  />
-                )}
+              {/* TAB 1: CAREGIVER HUB (PRIMARY DASHBOARD) */}
+              {activeTab === 'caregiver' && (
+                <TodayScheduleView
+                  authSession={authSession}
+                  refreshTrigger={refreshTrigger}
+                  onDoseToggled={triggerGlobalRefresh}
+                  onSwitchToDeskMode={() => setActiveTab('deskClock')}
+                  onSwitchToHistory={() => setActiveTab('history')}
+                  onOpenPaywall={() => setIsPaywallOpen(true)}
+                  onTriggerGuardianRefusal={handleTriggerGuardianRefusal}
+                  isPro={Boolean(authSession?.isPro)}
+                  caregiverName={authSession?.caregiverName}
+                  patientName={authSession?.patientName}
+                  patientAge={authSession?.patientAge}
+                />
+              )}
 
-                {/* TAB 2: HISTORY MATRIX PUNCH-CARD */}
-                {activeTab === 'history' && (
-                  <HistoryMatrixView
-                    authSession={authSession}
-                    refreshTrigger={refreshTrigger}
-                    isPro={Boolean(authSession?.isPro)}
-                    onOpenPaywall={() => setIsPaywallOpen(true)}
-                    patientName={authSession?.patientName}
-                    caregiverName={authSession?.caregiverName}
-                    patientAge={authSession?.patientAge}
-                  />
-                )}
+              {/* TAB 2: HISTORY MATRIX PUNCH-CARD */}
+              {activeTab === 'history' && (
+                <HistoryMatrixView
+                  authSession={authSession}
+                  refreshTrigger={refreshTrigger}
+                  isPro={Boolean(authSession?.isPro)}
+                  onOpenPaywall={() => setIsPaywallOpen(true)}
+                  patientName={authSession?.patientName}
+                  caregiverName={authSession?.caregiverName}
+                  patientAge={authSession?.patientAge}
+                />
+              )}
 
-                {/* TAB 3: VITALS ANALYTICS */}
-                {activeTab === 'analytics' && <AnalyticsView refreshTrigger={refreshTrigger} />}
+              {/* TAB 3: VITALS ANALYTICS */}
+              {activeTab === 'analytics' && <AnalyticsView refreshTrigger={refreshTrigger} />}
 
-                {/* TAB 4: NIGHTTIME BEDSIDE CLOCK (DESK MODE) */}
-                {activeTab === 'deskClock' && (
-                  <DeskModeView
-                    authSession={authSession}
-                    refreshTrigger={refreshTrigger}
-                    onSwitchToCaregiver={() => setActiveTab('caregiver')}
-                    onTakeDose={triggerGlobalRefresh}
-                    onTriggerGuardianRefusal={handleTriggerGuardianRefusal}
-                    patientName={authSession?.patientName}
-                  />
-                )}
-              </div>
-
-              {/* 3. FLOATING BOTTOM NAVIGATION BAR (MATCHES image/3.png, image/4.png, image/7.png, image/8.png) */}
-              <div className="shrink-0 w-full px-4 pb-3 pt-2 z-30 pointer-events-auto">
-                <nav
-                  className={`relative rounded-2xl px-4 py-2 flex items-center justify-between border shadow-lg backdrop-blur-md transition-colors duration-300 ${
-                    isDeskClock
-                      ? 'bg-[#0B1528]/95 border-slate-800 text-slate-300'
-                      : 'bg-white/95 border-slate-200/80 text-slate-700 shadow-[0_10px_30px_rgba(0,0,0,0.08)]'
-                  }`}
-                >
-                  {/* Left Navigation Tabs */}
-                  <div className="flex items-center gap-5 pl-1">
-                    {/* Tab 1: Caregiver */}
-                    <button
-                      onClick={() => setActiveTab('caregiver')}
-                      className={`flex flex-col items-center transition-all ${
-                        activeTab === 'caregiver'
-                          ? 'text-[#1E3A8A] font-bold'
-                          : 'text-slate-400 hover:text-slate-600 font-medium'
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faShieldHalved} className="text-base" />
-                      <span className="text-[11px] mt-1">Caregiver</span>
-                    </button>
-
-                    {/* Tab 2: History Matrix */}
-                    <button
-                      onClick={() => setActiveTab('history')}
-                      className={`flex flex-col items-center transition-all ${
-                        activeTab === 'history'
-                          ? 'text-[#1E3A8A] font-bold'
-                          : 'text-slate-400 hover:text-slate-600 font-medium'
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faTableCells} className="text-base" />
-                      <span className="text-[11px] mt-1">History Matrix</span>
-                    </button>
-                  </div>
-
-                  {/* ELEVATED CENTER HARDWARE-STYLE MIC BUTTON & DEMO VOICE SIMULATOR */}
-                  <div className="relative -top-4 flex items-center justify-center gap-2">
-                    {/* Visual voice feedback pill above Mic */}
-                    {(ambientAgent.isListening || ambientAgent.isThinking || ambientAgent.isSpeaking || ambientAgent.isPatientSpeaking) && (
-                      <div className="absolute -top-11 px-3 py-1.5 rounded-xl bg-white border border-[#10B981]/40 text-slate-900 text-xs font-semibold shadow-lg backdrop-blur-md whitespace-nowrap flex items-center gap-2 z-30 pointer-events-none animate-fadeIn">
-                        <span
-                          className={`w-2 h-2 rounded-full shrink-0 ${
-                            ambientAgent.isPatientSpeaking
-                              ? 'bg-purple-600 animate-ping'
-                              : ambientAgent.isThinking
-                              ? 'bg-[#10B981] animate-spin'
-                              : ambientAgent.isListening
-                              ? 'bg-[#76B900] animate-ping'
-                              : 'bg-[#10B981] animate-pulse'
-                          }`}
-                        />
-                        <span className="max-w-[220px] truncate">
-                          {ambientAgent.isPatientSpeaking
-                            ? ambientAgent.patientTranscript
-                              ? `Eleanor: "${ambientAgent.patientTranscript}"`
-                              : 'Eleanor speaking...'
-                            : ambientAgent.isThinking
-                            ? 'Analyzing with Nemotron-3-Nano...'
-                            : ambientAgent.isSpeaking
-                            ? 'Speaking response...'
-                            : ambientAgent.transcript
-                            ? `"${ambientAgent.transcript}"`
-                            : 'Listening to speech...'}
-                        </span>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={handleCenterMicClick}
-                      className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-md active:scale-95 ${
-                        ambientAgent.isListening
-                          ? 'bg-[#10B981] text-white ring-4 ring-[#76B900]/70 shadow-[0_0_24px_rgba(118,185,0,0.75)]'
-                          : ambientAgent.isThinking
-                          ? 'bg-[#10B981] text-white ring-4 ring-[#76B900]/60 shadow-[0_0_20px_rgba(118,185,0,0.6)] animate-pulse'
-                          : ambientAgent.isSpeaking
-                          ? 'bg-[#76B900] text-slate-900 ring-4 ring-[#10B981]/50 shadow-[0_0_20px_rgba(16,185,129,0.6)]'
-                          : 'bg-[#1E3A8A] hover:bg-[#1E40AF] text-white'
-                      }`}
-                      title={ambientAgent.isListening ? 'Click to stop listening' : 'Speak with CareBridge Ambient assistant'}
-                    >
-                      <FontAwesomeIcon
-                        icon={ambientAgent.isThinking ? faCircleNotch : faMicrophone}
-                        className={`text-lg ${ambientAgent.isSpeaking ? 'text-slate-900' : 'text-white'} ${ambientAgent.isThinking ? 'animate-spin' : ''}`}
-                      />
-                    </button>
-
-                    {/* LOCATION A: 1-CLICK DUAL-TURN DEMO VOICE TOGGLE/CHIP */}
-                    <button
-                      onClick={() => setIsDemoVoiceModalOpen(true)}
-                      disabled={ambientAgent.isThinking || ambientAgent.isSpeaking || ambientAgent.isPatientSpeaking}
-                      className={`h-10 px-2.5 rounded-xl border flex items-center gap-1.5 text-xs font-bold transition-all shadow-xs active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${
-                        ambientAgent.isPatientSpeaking
-                          ? 'bg-purple-600 text-white border-purple-400 ring-2 ring-purple-300 animate-pulse'
-                          : 'bg-white/95 hover:bg-purple-50 text-purple-900 border-purple-200 shadow-sm'
-                      }`}
-                      title="1-Click Dual-Turn Mock Voice Dialogue Simulator"
-                    >
-                      <span className="text-sm">🎭</span>
-                      <span className="text-[11px] font-mono tracking-tight">Demo Voice</span>
-                    </button>
-                  </div>
-
-                  {/* Right Navigation Tabs */}
-                  <div className="flex items-center gap-5 pr-1">
-                    {/* Tab 3: Analytics */}
-                    <button
-                      onClick={() => setActiveTab('analytics')}
-                      className={`flex flex-col items-center transition-all ${
-                        activeTab === 'analytics'
-                          ? 'text-[#1E3A8A] font-bold'
-                          : 'text-slate-400 hover:text-slate-600 font-medium'
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faChartLine} className="text-base" />
-                      <span className="text-[11px] mt-1">Analytics</span>
-                    </button>
-
-                    {/* Tab 4: Desk Clock */}
-                    <button
-                      onClick={() => setActiveTab('deskClock')}
-                      className={`flex flex-col items-center transition-all ${
-                        activeTab === 'deskClock'
-                          ? isDeskClock
-                            ? 'text-teal-400 font-bold'
-                            : 'text-[#1E3A8A] font-bold'
-                          : 'text-slate-400 hover:text-slate-600 font-medium'
-                      }`}
-                    >
-                      <FontAwesomeIcon icon={faClock} className="text-base" />
-                      <span className="text-[11px] mt-1">Desk Clock</span>
-                    </button>
-                  </div>
-                </nav>
-              </div>
-
-              {/* 4. CAREBRIDGE NVIDIA GREEN & EMERALD AMBIENT GLOW LIGHT BAR */}
-              <AmbientGlow
-                isListening={ambientAgent.isListening}
-                isThinking={ambientAgent.isThinking}
-                isSpeaking={ambientAgent.isSpeaking}
-                isPatientSpeaking={ambientAgent.isPatientSpeaking}
-                patientTranscript={ambientAgent.patientTranscript}
-                transcript={ambientAgent.transcript}
-                onTriggerDemoVoice={() => setIsDemoVoiceModalOpen(true)}
-              />
+              {/* TAB 4: NIGHTTIME BEDSIDE CLOCK (DESK MODE) */}
+              {activeTab === 'deskClock' && (
+                <DeskModeView
+                  authSession={authSession}
+                  refreshTrigger={refreshTrigger}
+                  onSwitchToCaregiver={() => setActiveTab('caregiver')}
+                  onTakeDose={triggerGlobalRefresh}
+                  onTriggerGuardianRefusal={handleTriggerGuardianRefusal}
+                  patientName={authSession?.patientName}
+                />
+              )}
             </div>
+
+            {/* 3. FLOATING GLASS DOCK (ITEM 3) */}
+            <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-auto">
+              <nav
+                className={`rounded-full mx-4 mb-2 py-2 px-4 flex items-center justify-between border shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl transition-all ${
+                  isDeskClock
+                    ? 'bg-slate-900/85 border-slate-800 text-slate-300'
+                    : 'bg-white/85 border-white/60 text-slate-700'
+                }`}
+              >
+                {/* Left Navigation Tabs */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('caregiver')}
+                    className={`flex flex-col items-center py-0.5 px-2 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                      activeTab === 'caregiver'
+                        ? 'text-[#1E3A8A] font-bold'
+                        : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faShieldHalved} className="text-xs" />
+                    <span className="text-[10px] font-semibold mt-0.5">Caregiver</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('history')}
+                    className={`flex flex-col items-center py-0.5 px-2 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                      activeTab === 'history'
+                        ? 'text-[#1E3A8A] font-bold'
+                        : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faTableCells} className="text-xs" />
+                    <span className="text-[10px] font-semibold mt-0.5">History Matrix</span>
+                  </button>
+                </div>
+
+                {/* Center: Elevated Hardware Mic Button & Demo Voice */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCenterMicClick}
+                    className={`w-12 h-12 -mt-5 rounded-full bg-gradient-to-tr from-[#1E3A8A] to-[#2563EB] text-white shadow-[0_8px_20px_rgba(37,99,235,0.4)] flex items-center justify-center border-2 border-white transition-transform hover:scale-105 active:scale-95 cursor-pointer ${
+                      ambientAgent.isListening
+                        ? 'ring-4 ring-[#76B900]/70 shadow-[0_0_24px_rgba(118,185,0,0.75)]'
+                        : ambientAgent.isThinking
+                        ? 'ring-4 ring-[#76B900]/60 shadow-[0_0_20px_rgba(118,185,0,0.6)] animate-pulse'
+                        : ambientAgent.isSpeaking
+                        ? 'ring-4 ring-[#10B981]/50 shadow-[0_0_20px_rgba(16,185,129,0.6)]'
+                        : ''
+                    }`}
+                    title={ambientAgent.isListening ? 'Click to stop listening' : 'Voice Assistant'}
+                  >
+                    <FontAwesomeIcon
+                      icon={ambientAgent.isThinking ? faCircleNotch : faMicrophone}
+                      className={`text-base ${ambientAgent.isSpeaking ? 'text-slate-900' : 'text-white'} ${ambientAgent.isThinking ? 'animate-spin' : ''}`}
+                    />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsDemoVoiceModalOpen(true)}
+                    disabled={ambientAgent.isThinking || ambientAgent.isSpeaking || ambientAgent.isPatientSpeaking}
+                    className={`h-8 px-2.5 rounded-full border flex items-center gap-1.5 text-[11px] font-bold transition-all shadow-2xs active:scale-95 cursor-pointer disabled:opacity-50 disabled:pointer-events-none ${
+                      ambientAgent.isPatientSpeaking
+                        ? 'bg-purple-600 text-white border-purple-400 ring-2 ring-purple-300 animate-pulse'
+                        : 'bg-white/90 hover:bg-purple-50 text-purple-900 border-purple-200/80 shadow-sm'
+                    }`}
+                    title="1-Click Dual-Turn Mock Voice Dialogue Simulator"
+                  >
+                    <span>🗣️</span>
+                    <span className="font-semibold whitespace-nowrap">Demo Voice</span>
+                  </button>
+                </div>
+
+                {/* Right Navigation Tabs */}
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('analytics')}
+                    className={`flex flex-col items-center py-0.5 px-2 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                      activeTab === 'analytics'
+                        ? 'text-[#1E3A8A] font-bold'
+                        : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faChartLine} className="text-xs" />
+                    <span className="text-[10px] font-semibold mt-0.5">Analytics</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('deskClock')}
+                    className={`flex flex-col items-center py-0.5 px-2 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                      activeTab === 'deskClock'
+                        ? isDeskClock
+                          ? 'text-teal-400 font-bold'
+                          : 'text-[#1E3A8A] font-bold'
+                        : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faClock} className="text-xs" />
+                    <span className="text-[10px] font-semibold mt-0.5">Desk Clock</span>
+                  </button>
+                </div>
+              </nav>
+            </div>
+
+            {/* 4. CAREBRIDGE NVIDIA GREEN & EMERALD AMBIENT GLOW LIGHT BAR */}
+            <AmbientGlow
+              isListening={ambientAgent.isListening}
+              isThinking={ambientAgent.isThinking}
+              isSpeaking={ambientAgent.isSpeaking}
+              isPatientSpeaking={ambientAgent.isPatientSpeaking}
+              patientTranscript={ambientAgent.patientTranscript}
+              transcript={ambientAgent.transcript}
+              onTriggerDemoVoice={() => setIsDemoVoiceModalOpen(true)}
+            />
           </div>
+        </div>
 
         {/* DEVICE MOCKUP FRAME 2: AGENT CONSOLE (DUAL VIEW) */}
         {isDualMode && (
           <div
-            className={`h-full max-h-[calc(100vh-5rem)] w-full max-w-[440px] flex flex-col shrink-0 rounded-[32px] overflow-hidden p-2 sm:p-2.5 transition-all duration-300 ${
-              isDeskClock
-                ? 'bg-[#0B1528] border border-blue-900/40 shadow-2xl'
-                : 'bg-slate-200/80 border border-slate-300 shadow-xl'
-            }`}
+            className="h-full max-h-[calc(100vh-5.5rem)] w-full max-w-[440px] flex flex-col shrink-0 rounded-[32px] border border-slate-200/90 shadow-[0_20px_50px_rgba(0,0,0,0.06)] bg-white overflow-hidden transition-all duration-300"
           >
-            <div className="relative rounded-[24px] overflow-hidden bg-white border border-slate-200/80 flex-1 min-h-0 flex flex-col shadow-md">
-              <AgentConsole
-                voiceAgent={ambientAgent}
-                onTriggerVisualCard={handleTriggerVisualCard}
-                onTriggerClinicalAdvice={handleTriggerClinicalAdvice}
-                onRefreshData={() => {
-                  triggerGlobalRefresh();
-                  setActiveTab('caregiver');
-                }}
-                patientName={authSession?.patientName}
-                patientAge={authSession?.patientAge}
-              />
-            </div>
+            <AgentConsole
+              voiceAgent={ambientAgent}
+              onTriggerVisualCard={handleTriggerVisualCard}
+              onTriggerClinicalAdvice={handleTriggerClinicalAdvice}
+              onRefreshData={() => {
+                triggerGlobalRefresh();
+                setActiveTab('caregiver');
+              }}
+              patientName={authSession?.patientName}
+              patientAge={authSession?.patientAge}
+            />
           </div>
         )}
       </main>

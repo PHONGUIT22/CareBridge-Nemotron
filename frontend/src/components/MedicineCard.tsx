@@ -70,18 +70,18 @@ export function MedicineCard({
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-4 sm:p-5 flex items-start justify-between gap-3.5 sm:gap-4 transition-all hover:shadow-[0_8px_25px_rgba(0,0,0,0.07)]">
-      {/* 1. LEFT STATUS CIRCLE BADGE (MATCHES image/3.png & image/6.png) */}
+    <div className="bg-white rounded-2xl border border-slate-100 hover:border-blue-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(30,58,138,0.06)] p-4 sm:p-5 flex items-start justify-between gap-3.5 sm:gap-4 transition-all">
+      {/* 1. LEFT STATUS CIRCLE BADGE */}
       <button
         type="button"
         disabled={isFuture}
         onClick={handleToggle}
         className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-transform ${
           isFuture
-            ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-75'
+            ? 'bg-slate-50 text-slate-400 border border-slate-200/60 cursor-not-allowed opacity-75'
             : isTaken
-            ? 'bg-emerald-50 text-emerald-600 border border-emerald-200/60 active:scale-90'
-            : 'bg-blue-50 text-blue-600 border border-blue-200/60 hover:bg-blue-100 active:scale-90'
+            ? 'bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 border border-emerald-300/80 shadow-[0_0_12px_rgba(16,185,129,0.15)] active:scale-90'
+            : 'bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 border border-blue-200/80 hover:border-blue-400 shadow-xs active:scale-90'
         }`}
         title={
           isFuture
@@ -99,7 +99,7 @@ export function MedicineCard({
         />
       </button>
 
-      {/* 2. CENTER MEDICATION DETAILS (MATCHES image/3.png & image/6.png) */}
+      {/* 2. CENTER MEDICATION DETAILS */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <h4 className="font-extrabold text-slate-900 text-sm sm:text-base leading-snug truncate">
@@ -138,12 +138,12 @@ export function MedicineCard({
           <button
             type="button"
             onClick={() => onEdit?.(item)}
-            className="bg-blue-50/80 border border-blue-200/60 text-blue-700 hover:bg-blue-100 text-xs font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/60 text-xs font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Edit stock or prescription details"
           >
             <FontAwesomeIcon icon={faPills} className="text-[10px]" />
             <span>{item.stockCount ?? 60} pills</span>
-            <FontAwesomeIcon icon={faPencil} className="text-[9px] text-blue-500" />
+            <FontAwesomeIcon icon={faPencil} className="text-[9px] text-slate-400" />
           </button>
         </div>
 
@@ -169,14 +169,14 @@ export function MedicineCard({
         <button
           type="button"
           onClick={() => onOpenNoteModal?.(item)}
-          className="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-[11px] font-semibold rounded-lg px-2.5 py-1 mt-2 inline-flex items-center gap-1.5 transition-colors cursor-pointer text-left"
+          className="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/60 text-[11px] font-semibold rounded-lg px-2.5 py-1 mt-2 inline-flex items-center gap-1.5 transition-colors cursor-pointer text-left"
           title="Edit intake instruction or clinical observation note"
         >
-          <FontAwesomeIcon icon={faUtensils} className="text-[10px] text-blue-700" />
+          <FontAwesomeIcon icon={faUtensils} className="text-[10px] text-slate-500" />
           <span className="truncate max-w-[200px]">
             {item.notes || 'Taken with breakfast'}
           </span>
-          <FontAwesomeIcon icon={faPencil} className="text-[9px] text-blue-600" />
+          <FontAwesomeIcon icon={faPencil} className="text-[9px] text-slate-400" />
         </button>
       </div>
 

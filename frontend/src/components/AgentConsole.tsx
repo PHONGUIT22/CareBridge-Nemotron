@@ -201,46 +201,43 @@ export function AgentConsole({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            {isPatientSpeaking && (
-              <span className="px-2 py-0.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-xs font-mono font-medium flex items-center gap-1 animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-ping" />
-                Turn 1: Eleanor
-              </span>
-            )}
-            {isListening && (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-mono font-medium flex items-center gap-1 animate-pulse">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#76B900] animate-ping" />
-                Listening
-              </span>
-            )}
-            {isThinking && (
-              <span className="px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[#1E3A8A] text-xs font-mono font-medium flex items-center gap-1">
-                <FontAwesomeIcon icon={faCircleNotch} className="animate-spin text-[10px]" />
-                Thinking (Nemotron Cascading AI)
-              </span>
-            )}
-            {isSpeaking && (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-mono font-medium flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                Speaking
-              </span>
-            )}
-            {!isListening && !isThinking && !isSpeaking && !isPatientSpeaking && (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-medium">
-                Live
-              </span>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 text-xs font-semibold">
+            {isPatientSpeaking ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-purple-600 animate-ping" />
+                <span className="text-purple-700 font-mono">Turn 1: Eleanor</span>
+              </>
+            ) : isListening ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-[#76B900] shadow-[0_0_8px_#76B900] animate-ping" />
+                <span className="text-emerald-800 font-mono">Listening</span>
+              </>
+            ) : isThinking ? (
+              <>
+                <FontAwesomeIcon icon={faCircleNotch} className="animate-spin text-[10px] text-[#1E3A8A]" />
+                <span className="text-[#1E3A8A] font-mono">Thinking (Nemotron)</span>
+              </>
+            ) : isSpeaking ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+                <span className="text-emerald-800 font-mono">Speaking</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-[#76B900] shadow-[0_0_8px_#76B900] animate-pulse" />
+                <span className="font-mono text-emerald-800">Live</span>
+              </>
             )}
           </div>
         </div>
 
         {/* 1-CLICK DUAL-TURN VOICE SCENARIO BAR */}
-        <div className="mb-2 p-2 rounded-xl bg-gradient-to-r from-purple-50/90 via-indigo-50/70 to-blue-50/90 border border-purple-200/80 shadow-2xs">
-          <div className="flex items-center justify-between gap-2 mb-1.5 px-0.5">
+        <div className="mb-2 p-2.5 rounded-2xl bg-slate-50/80 backdrop-blur-xs border border-purple-200/60 shadow-2xs">
+          <div className="flex items-center justify-between gap-2 mb-2 px-0.5">
             <div className="flex items-center gap-1.5 text-xs font-bold text-purple-900 tracking-tight">
               <span className="text-sm">🎭</span>
               <span>1-Click Voice Scenario</span>
-              <span className="text-[10px] font-semibold text-purple-700 bg-purple-100/90 px-1.5 py-0.5 rounded-full border border-purple-200">
+              <span className="text-[10px] font-semibold text-purple-700 bg-purple-100/90 px-2 py-0.5 rounded-full border border-purple-200">
                 Dual-Turn Audio Simulator
               </span>
             </div>
@@ -259,10 +256,10 @@ export function AgentConsole({
                   key={scenario.id}
                   onClick={() => simulateVoiceScenario(scenario)}
                   disabled={isBusy}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all shrink-0 shadow-2xs active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 shadow-2xs active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer ${
                     isActive
                       ? 'bg-purple-600 text-white shadow-md ring-2 ring-purple-300 ring-offset-1 animate-pulse'
-                      : 'bg-white hover:bg-purple-100/80 text-purple-900 border border-purple-200/70 hover:border-purple-300'
+                      : 'bg-white hover:bg-purple-50 text-purple-900 border border-purple-200/60 hover:border-purple-300'
                   }`}
                   title={`${scenario.title}: "${scenario.prompt}"`}
                 >
@@ -384,7 +381,7 @@ export function AgentConsole({
               {/* Inline Tool Call Accordion Pill */}
               {hasToolCall && msg.toolCall && (
                 <div className="w-full flex flex-col gap-1">
-                  <div className="flex items-center justify-between text-xs bg-emerald-50/70 px-2.5 py-1.5 rounded-xl border border-emerald-200/80 text-emerald-900 transition-colors">
+                  <div className="flex items-center justify-between text-xs bg-emerald-50/70 px-3 py-2 rounded-xl border border-emerald-200/60 text-emerald-900 transition-colors">
                     <div className="flex items-center gap-2">
                       <span className="text-emerald-800 flex items-center gap-1 font-mono font-bold">
                         <FontAwesomeIcon icon={faBolt} className="text-xs text-[#76B900]" />
@@ -431,7 +428,7 @@ export function AgentConsole({
               )}
 
               {/* Conversational Text Bubble */}
-              <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-sm px-4 py-3 text-slate-800 text-xs shadow-sm leading-relaxed w-full">
+              <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-sm p-4 text-slate-800 text-xs shadow-sm leading-relaxed w-full">
                 <p className="whitespace-pre-wrap">{msg.text}</p>
 
                 {/* Structured Action Guidance */}
@@ -501,7 +498,7 @@ export function AgentConsole({
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             placeholder="Ask CareBridge or report symptoms..."
-            className="w-full bg-slate-50 border border-slate-200/80 focus:bg-white focus:border-[#10B981] rounded-xl pl-3.5 pr-20 py-2.5 text-xs text-slate-900 placeholder-slate-400 outline-none transition-all shadow-inner"
+            className="w-full bg-slate-50/90 focus:bg-white border border-slate-200/80 focus:border-blue-400 rounded-2xl pl-4 pr-20 py-2.5 text-xs text-slate-900 placeholder-slate-400 outline-none transition-all shadow-inner"
           />
 
           {/* Action Buttons Pinned to Right Edge */}
