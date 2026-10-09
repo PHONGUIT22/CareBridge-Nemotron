@@ -506,16 +506,16 @@ export default function Home() {
 
       {/* 2. MAIN WORKSPACE - ENCAPSULATED DEVICE MOCKUP FRAME */}
       <main className="flex-1 min-h-0 flex items-center justify-center gap-5 p-4 overflow-hidden">
-        {/* DEVICE MOCKUP FRAME 1: TABLET (SENIOR/CAREGIVER BEDSIDE DISPLAY) */}
+        {/* DEVICE MOCKUP FRAME 1: TABLET (TITANIUM SILVER / CLINIC WHITE BEDSIDE DISPLAY) */}
         <div
-          className="h-full max-h-[calc(100vh-5.5rem)] w-full max-w-[700px] flex flex-col shrink-0 relative rounded-[40px] border-[10px] border-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] bg-slate-900 overflow-hidden transition-all duration-300"
+          className="h-full max-h-[calc(100vh-5.5rem)] w-full max-w-[700px] flex flex-col shrink-0 relative rounded-[36px] border-4 border-slate-200/90 bg-slate-100/80 shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-2.5 overflow-hidden transition-all duration-300"
         >
-          {/* Punch-hole camera notch */}
-          <div className="w-3 h-3 rounded-full bg-slate-950 border border-slate-700 mx-auto my-1 shrink-0 shadow-inner" />
+          {/* Subtle titanium camera notch */}
+          <div className="w-2 h-2 rounded-full bg-slate-300 border border-slate-400/50 mx-auto mb-1.5 opacity-60 shrink-0" />
 
           {/* INNER SCREEN CONTAINER */}
           <div
-            className={`relative rounded-[30px] overflow-hidden flex-1 min-h-0 flex flex-col transition-colors duration-300 ${
+            className={`relative rounded-[28px] overflow-hidden border border-slate-200/60 shadow-inner flex-1 min-h-0 flex flex-col transition-colors duration-300 ${
               isDeskClock
                 ? 'bg-[#050811] text-white'
                 : 'bg-[#F8FAFC] text-slate-900'
