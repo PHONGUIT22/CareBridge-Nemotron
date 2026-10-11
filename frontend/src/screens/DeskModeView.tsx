@@ -14,12 +14,10 @@ import {
   faChevronRight,
   faBan,
   faHeartPulse,
-  faClock,
 } from '@fortawesome/free-solid-svg-icons';
 import confetti from 'canvas-confetti';
 import { GuardianSelector } from '../components/GuardianSelector';
 import { soundFxService } from '../services/soundFxService';
-import { isFutureDose } from '../components/MedicineCard';
 import { AuthSession } from '../components/AuthGate';
 
 interface DeskModeViewProps {
@@ -75,11 +73,6 @@ export function DeskModeView({
     return nextAfterNow || sorted[0];
   }, [schedule]);
 
-  const isUpcomingFuture = useMemo(() => {
-    if (!upcomingDose) return false;
-    return isFutureDose(upcomingDose.date, upcomingDose.scheduledTime) && upcomingDose.status === 'pending';
-  }, [upcomingDose]);
-
   const totalDoses = schedule.length || 4;
   const completedDoses = schedule.filter((s) => s.status === 'taken').length;
   const progressPercent = Math.round((completedDoses / totalDoses) * 100);
@@ -91,20 +84,19 @@ export function DeskModeView({
   };
 
   const handleTakePill = async () => {
-    if (!upcomingDose || isUpcomingFuture) return;
+    if (!upcomingDose) return;
 
     soundFxService.playPillClick();
     soundFxService.playCelebrationChord();
 
     confetti({
-      particleCount: 100,
-      spread: 75,
-      origin: { y: 0.75 },
-      colors: ['#00CAFF', '#10B981', '#38BDF8', '#F59E0B'],
+      particleCount: 120,
+      spread: 80,
+      origin: { y: 0.7 },
+      colors: ['#76B900', '#10B981', '#F59E0B', '#38BDF8', '#2563EB'],
     });
 
     const takingLogId = upcomingDose.logId;
-    const medName = upcomingDose.name;
 
     setSchedule((prev) =>
       prev.map((item) =>
@@ -114,7 +106,7 @@ export function DeskModeView({
       )
     );
 
-    speechService.speak(`Great job! I've marked your ${medName} as taken.`);
+    speechService.speak("Great job Eleanor, morning dose recorded");
 
     try {
       await mcpClient.toggleDose(takingLogId, 'pending');
@@ -208,25 +200,16 @@ export function DeskModeView({
               </button>
             </div>
 
-            {/* Giant Action Button: I TOOK MY PILL or UPCOMING (SCHEDULED) */}
-            {isUpcomingFuture ? (
-              <button
-                disabled
-                className="w-full py-4 sm:py-5 rounded-2xl bg-slate-800 text-slate-400 font-bold text-base sm:text-lg tracking-wide flex items-center justify-center gap-3 cursor-not-allowed border border-slate-700 opacity-80"
-                title="Upcoming (Scheduled)"
-              >
-                <FontAwesomeIcon icon={faClock} className="text-lg text-slate-400" />
-                <span>UPCOMING (SCHEDULED)</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleTakePill}
-                className="w-full py-4 sm:py-5 rounded-2xl bg-[#10B981] hover:bg-[#059669] text-white font-black text-lg sm:text-xl tracking-wide flex items-center justify-center gap-3 shadow-[0_4px_25px_rgba(16,185,129,0.45)] active:scale-[0.98] transition-all"
-              >
-                <FontAwesomeIcon icon={faCheck} className="text-xl stroke-[3]" />
-                <span>I TOOK MY PILL</span>
-              </button>
-            )}
+            {/* Giant Action Button: ALWAYS ACTIVE "I TOOK MY PILL" */}
+            <button
+              type="button"
+              onClick={handleTakePill}
+              className="w-full py-4 sm:py-5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white font-black text-lg sm:text-xl tracking-wider flex items-center justify-center gap-3 shadow-[0_6px_25px_rgba(245,158,11,0.5)] active:scale-[0.98] transition-all cursor-pointer border border-amber-300/50"
+              title="I TOOK MY PILL - Click to record dose"
+            >
+              <FontAwesomeIcon icon={faCheck} className="text-2xl stroke-[3]" />
+              <span>I TOOK MY PILL</span>
+            </button>
 
             {/* Skip Dose Guardian Negotiation Button */}
             <button

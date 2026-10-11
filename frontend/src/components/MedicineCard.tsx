@@ -29,10 +29,8 @@ export interface MedicineCardItem {
 }
 
 export const isFutureDose = (dateStr?: string, scheduledTime?: string): boolean => {
-  if (!dateStr || !scheduledTime) return false;
-  const now = new Date();
-  const doseDateTime = new Date(`${dateStr}T${scheduledTime}:00`);
-  return doseDateTime.getTime() > now.getTime();
+  // In demo & ambient evaluator mode, never time-lock future doses
+  return false;
 };
 
 interface MedicineCardProps {
@@ -55,7 +53,6 @@ export function MedicineCard({
   const isFuture = isFutureDose(item.date, item.scheduledTime) && item.status === 'pending';
 
   const handleToggle = () => {
-    if (isFuture) return;
     if (!isTaken) {
       try {
         confetti({
@@ -74,11 +71,10 @@ export function MedicineCard({
       {/* 1. LEFT STATUS CIRCLE BADGE */}
       <button
         type="button"
-        disabled={isFuture}
         onClick={handleToggle}
-        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-transform ${
+        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-transform cursor-pointer ${
           isFuture
-            ? 'bg-slate-50 text-slate-400 border border-slate-200/60 cursor-not-allowed opacity-75'
+            ? 'bg-slate-50 text-slate-400 border border-slate-200/60'
             : isTaken
             ? 'bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 border border-emerald-300/80 shadow-[0_0_12px_rgba(16,185,129,0.15)] active:scale-90'
             : 'bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 border border-blue-200/80 hover:border-blue-400 shadow-xs active:scale-90'
@@ -186,27 +182,17 @@ export function MedicineCard({
           <button
             type="button"
             onClick={handleToggle}
-            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3.5 sm:px-4 py-2 rounded-full text-xs flex items-center gap-1.5 border border-emerald-200/60 shadow-2xs active:scale-95 transition-all"
+            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3.5 sm:px-4 py-2 rounded-full text-xs flex items-center gap-1.5 border border-emerald-200/60 shadow-2xs active:scale-95 transition-all cursor-pointer"
             title="Mark as pending"
           >
             <FontAwesomeIcon icon={faCheck} className="text-xs" />
             <span>Taken</span>
           </button>
-        ) : isFuture ? (
-          <button
-            type="button"
-            disabled
-            className="bg-slate-100 border border-slate-200 text-slate-400 font-semibold px-3.5 sm:px-4 py-2 rounded-full text-xs flex items-center gap-1.5 cursor-not-allowed opacity-80"
-            title="Upcoming (Scheduled)"
-          >
-            <FontAwesomeIcon icon={faClock} className="text-xs text-slate-400" />
-            <span>Upcoming</span>
-          </button>
         ) : (
           <button
             type="button"
             onClick={handleToggle}
-            className="bg-[#1E3A8A] hover:bg-[#1E40AF] text-white font-bold px-3.5 sm:px-4 py-2 rounded-full text-xs shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+            className="bg-[#1E3A8A] hover:bg-[#1E40AF] text-white font-bold px-3.5 sm:px-4 py-2 rounded-full text-xs shadow-sm active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
             title="Mark dose as completed"
           >
             <FontAwesomeIcon icon={faCheck} className="text-xs" />
