@@ -10,10 +10,12 @@
 [![Partner Award: Tavily](https://img.shields.io/badge/Tavily%20Award-Live%20Drug%20Verification-4F46E5?style=for-the-badge&logo=search&logoColor=white)](https://tavily.com)
 [![Protocol](https://img.shields.io/badge/Protocol-Model%20Context%20Protocol%20(MCP)-FF5722?style=for-the-badge&logo=json&logoColor=white)](https://modelcontextprotocol.io)
 [![Stack](https://img.shields.io/badge/Stack-Next.js%2015%20•%20Express%20MCP%20•%20SQLite%20WAL-0EA5E9?style=for-the-badge&logo=react&logoColor=white)](#-tech-stack)
+[![Live Web Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Edge-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://care-bridge-nemotron.vercel.app)
+[![Live MCP Backend](https://img.shields.io/badge/MCP%20Backend-Render%20Cloud-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://carebridge-nemotron.onrender.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT%20Open%20Source-10B981?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](./LICENSE)
 [![Feedback Award](https://img.shields.io/badge/Friction%20Log-Nebius%20DX%20Feedback-00CAFF?style=for-the-badge&logo=buffer&logoColor=white)](./FRICTION_LOG.md)
 
-[📺 Watch Live Demo (YouTube)](https://youtu.be/placeholder) • [💻 Public GitHub Repository](https://github.com/PHONGUIT22/CareBridge-Nemotron) • [🏛️ System Architecture](./ARCHITECTURE.md) • [📑 Nebius Friction Log](./FRICTION_LOG.md) • [🎬 3-Minute Demo Script](./DEMO_SCRIPT_3MIN.md) • [📜 MIT License](./LICENSE)
+[📺 Watch Live Demo (YouTube)](https://youtu.be/zr-QiEFPaFY) • [🚀 Live Web Demo](https://care-bridge-nemotron.vercel.app) • [⚡ Live MCP Backend](https://carebridge-nemotron.onrender.com) • [💻 Public GitHub Repository](https://github.com/PHONGUIT22/CareBridge-Nemotron) • [🏛️ System Architecture](./ARCHITECTURE.md) • [📑 Nebius Friction Log](./FRICTION_LOG.md) • [🎬 3-Minute Demo Script](./DEMO_SCRIPT_3MIN.md) • [📜 MIT License](./LICENSE)
 
 </div>
 
@@ -101,7 +103,7 @@ Re-usable clinical workflow templates that guide assistant interaction:
 
 ---
 
-## 🧠 Pillar 2: NVIDIA Nemotron-3-Nano on Nebius Token Factory
+## 🧠 Pillar 2: Tiered NVIDIA Nemotron Inference on Nebius Token Factory (Nano & Ultra 550B)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -109,18 +111,29 @@ Re-usable clinical workflow templates that guide assistant interaction:
 │                                                                             │
 │   Client Request (OpenAI Spec)                                              │
 │   baseURL: https://api.tokenfactory.nebius.com/v1                           │
-│   Model: nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B                              │
 │                                                                             │
-│   ┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────┐   │
-│   │   Pre-Inference     │   │   Nemotron-3-Nano   │   │   Streaming     │   │
-│   │   PII & Topic Guard │──▶│   Clinical Reasoning│──▶│   SSE Tokens    │   │
-│   │   (Regex Filter)    │   │   & Tool Calling    │   │   (<350ms TTFT) │   │
-│   └─────────────────────┘   └─────────────────────┘   └─────────────────┘   │
+│   ┌─────────────────────┐   ┌───────────────────────────────────────────┐   │
+│   │   Pre-Inference     │   │     selectNemotronModelTier Router        │   │
+│   │   PII & Topic Guard │──▶│                                           │   │
+│   │   (Regex Filter)    │   │  Routine / Fast (TTFT < 350ms):           │   │
+│   └─────────────────────┘   │   ▶ nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B │   │
+│                             │                                           │   │
+│                             │  Acute Emergency / Complex Polypharmacy:  │   │
+│                             │   ▶ nvidia/Nemotron-3-Ultra-550b-a55b     │   │
+│                             └─────────────────────┬─────────────────────┘   │
+│                                                   │                         │
+│                                                   ▼                         │
+│                                         ┌───────────────────┐               │
+│                                         │ Streaming SSE     │               │
+│                                         │ Audio & Cards     │               │
+│                                         └───────────────────┘               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-1. **High-Performance Open-Weights Inference:** Leveraging `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` hosted on Nebius Token Factory for world-class clinical reasoning and conversational nuance.
-2. **OpenAI Compatibility:** Built using standard `openai` SDK pointing to `https://api.tokenfactory.nebius.com/v1`, eliminating proprietary vendor lock-in.
+1. **Dynamic Multi-Model Cascading (`selectNemotronModelTier`):**
+   - **Fast Routine Tier (`nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`):** Every day routine queries—such as daily schedule queries (`getTodaySchedule`), dose confirmation logging (`logDoseStatus`), autonomous pharmacy refill dispatch (`orderRefill`), and smart lock toggles (`ringDeviceHub`)—route to `Nemotron-3-Nano` achieving ultra-responsive **sub-350ms Time to First Token (TTFT)**.
+   - **Ultra Deep Reasoning Tier (`nvidia/Nemotron-3-Ultra-550b-a55b`):** Acute medical emergencies (e.g., crushing chest pain, dyspnea, syncope, suspected stroke) and complex polypharmacy triage ($\ge 3$ simultaneous medications, narrow therapeutic index drugs like Digoxin/Warfarin, or dangerous pharmacokinetics) dynamically elevate to `Nemotron-3-Ultra` for deep differential diagnosis and protocol enforcement.
+2. **OpenAI SDK Wire Compatibility:** Built using standard `openai` SDK pointing to `https://api.tokenfactory.nebius.com/v1`, eliminating proprietary vendor lock-in.
 3. **Sub-350ms Time to First Token (TTFT):** Token streaming via Server-Sent Events ensures instant voice feedback and visual status updates on smart displays.
 4. **Clinical Safety Guardrails:**
    - **Topic Denial Guardrail:** Intercepts dangerous self-directed dosage modifications (e.g., *"Can I double my Digoxin dose?"*), returning an authoritative refusal:
@@ -230,6 +243,14 @@ flowchart TD
     DB -->|30-Day Vitals & eMAR| UI_DocModal
 ```
 
+### ☁️ Cloud Deployment Architecture
+
+CareBridge is production-deployed across a decoupled high-availability cloud infrastructure:
+
+- **Frontend Smart Display Station ([https://care-bridge-nemotron.vercel.app](https://care-bridge-nemotron.vercel.app)):** Deployed on **Vercel** with Global Edge CDN and strict HTTPS security compliance, ensuring full browser compatibility with the Web Speech API (`SpeechRecognition` & `SpeechSynthesis`) and Web Audio API permissions on tablets, smart displays, and mobile devices.
+- **Backend MCP Server ([https://carebridge-nemotron.onrender.com](https://carebridge-nemotron.onrender.com)):** Hosted on **Render** supporting persistent HTTP connections with low-latency Server-Sent Events (SSE) streaming (`/sse`), SQLite WAL persistence, and automated webhook dispatch.
+- **AI Inference Engine:** 100% powered by **Nebius Token Factory** (`https://api.tokenfactory.nebius.com/v1`), delivering high-throughput inference across both `Nemotron-3-Nano` and `Nemotron-3-Ultra` with sub-350ms TTFT.
+
 ---
 
 ## ⚡ 1-Click Evaluator Sandbox Pass (Quickstart Guide)
@@ -245,11 +266,17 @@ npm install
 Create `.env` in the root or `backend-mcp/.env`:
 ```env
 PORT=3001
+MCP_PORT=3001
 NEBIUS_API_KEY=your_nebius_api_key_here
 NEBIUS_BASE_URL=https://api.tokenfactory.nebius.com/v1
 NEMOTRON_MODEL_ID=nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+NEMOTRON_FAST_MODEL=nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+NEMOTRON_REASONING_MODEL=nvidia/Nemotron-3-Ultra-550b-a55b
 NVIDIA_MODEL_ID=nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B
+NEMOTRON_GUARDRAIL_ID=carebridge-nemotron-clinical-guardrail-v1
 TAVILY_API_KEY=your_tavily_api_key_here
+NEXT_PUBLIC_MCP_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ### Step 3: Launch Development Servers
@@ -348,6 +375,11 @@ carebridge-nemotron/
 │   │   │   ├── globals.css          # CSS tokens & animations
 │   │   │   ├── layout.tsx           # Root layout & metadata
 │   │   │   └── page.tsx             # Ambient Dashboard view
+│   │   ├── screens/                 # Core Ambient Station Screens
+│   │   │   ├── TodayScheduleView.tsx# Caregiver schedule & adherence view
+│   │   │   ├── DeskModeView.tsx     # Senior bedside nightstand & giant 1-tap action
+│   │   │   ├── HistoryMatrixView.tsx# 30-day compliance matrix & punch-card
+│   │   │   └── AnalyticsView.tsx    # Longitudinal biometric vital trends (BP/HR/BS)
 │   │   ├── components/
 │   │   │   ├── RichCards/           # Interactive Agent Rich Cards
 │   │   │   │   ├── ClinicalAdviceCard.tsx      # Triage card & emergency alert status
@@ -361,14 +393,21 @@ carebridge-nemotron/
 │   │   │   ├── DemoVoiceModal.tsx   # 1-Click mock dialogue scenario simulator
 │   │   │   ├── DoctorReportPreviewModal.tsx # Hospital A4 report & FHIR QR code
 │   │   │   ├── MedicationPunchCard.tsx      # Oversized dose confirmation touch targets
+│   │   │   ├── MedicineCard.tsx     # Medication item with tremor-tolerant actions
 │   │   │   └── SeniorClock.tsx      # 10-foot glanceable time and date display
+│   │   ├── context/
+│   │   │   ├── AlertContext.tsx     # Global notification & alert context
+│   │   │   └── AmbientVoiceContext.tsx # Ambient voice state & audio manager
 │   │   ├── hooks/
 │   │   │   ├── useAmbientAgent.ts   # Voice agent coordination hook
 │   │   │   ├── useMedicines.ts      # Medication state hook
 │   │   │   └── useHeatmap.ts        # 30-day compliance matrix hook
-│   │   └── services/
-│   │       ├── speechService.ts     # Speech synthesis & analyser service
-│   │       └── soundFxService.ts    # Procedural zero-asset Web Audio earcons
+│   │   ├── services/
+│   │   │   ├── mcpClient.ts         # Model Context Protocol HTTP & SSE client
+│   │   │   ├── speechService.ts     # Speech synthesis & analyser service
+│   │   │   └── soundFxService.ts    # Procedural zero-asset Web Audio earcons
+│   │   └── utils/
+│   │       └── dateUtils.ts         # Client timezone & date formatting utilities
 │
 ├── ARCHITECTURE.md                  # Comprehensive System Architecture Blueprint
 ├── DEMO_SCRIPT_3MIN.md              # 3-Minute Video Presentation Script
