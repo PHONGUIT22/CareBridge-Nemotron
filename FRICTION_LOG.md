@@ -160,7 +160,7 @@ During the development of **CareBridge Ambient OS**, our engineering team conduc
   - *Expected:* MCP SDK handles client network interruptions gracefully with automatic reconnect resumption.
   - *Actual:* When a browser tab was closed or reloaded, subsequent tool calls threw `404 Session not found or expired`.
 - **Severity Rating:** **Medium** (Degrades connection continuity on client refresh).
-- **Workaround Implemented:** Built a session mapping registry `sseTransports = new Map<string, SSEServerTransport>()` in `backend-mcp/src/server.ts` that safely cleans up closed socket references and mirrors all MCP tools as direct REST endpoints (`/api/dose`, `/api/today`, `/api/advisor`, `/api/refill`) for fallback resilience.
+- **Workaround Implemented:** Built an isolated session registry `mcpSessions = new Map<string, { transport: SSEServerTransport; server: Server }>()` using a `createMcpServer()` factory in `backend-mcp/src/server.ts` that instantiates dedicated MCP Server instances per SSE stream, gracefully closes and cleans up socket references upon disconnect, and mirrors all MCP tools as direct REST endpoints (`/api/dose`, `/api/today`, `/api/advisor`, `/api/refill`) for fallback resilience.
 - **Actionable Suggestion for MCP Ecosystem:** Incorporate session heartbeat recovery tokens into the standard `@modelcontextprotocol/sdk` specification.
 
 ---

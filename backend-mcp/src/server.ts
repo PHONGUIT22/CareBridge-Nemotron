@@ -78,21 +78,8 @@ app.use(express.json());
 initDB();
 
 // ==========================================
-// 2. SETUP MCP SERVER (Spec 2025-11-25)
+// 2. SETUP MCP SERVER FACTORY (Spec 2025-11-25)
 // ==========================================
-const mcpServer = new Server(
-  {
-    name: 'carebridge-ambient-mcp',
-    version: '1.0.0',
-  },
-  {
-    capabilities: {
-      tools: {},
-      resources: {},
-      prompts: {},
-    },
-  }
-);
 
 // Registered tools ready for CareBridge Ambient agent
 const registeredTools = [
@@ -105,125 +92,149 @@ const registeredTools = [
   negotiateAdherenceTool,
 ];
 
-// --- MCP TOOLS HANDLERS ---
-// Handler when Agent requests tool list
-mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
-  return {
-    tools: registeredTools.map((t) => t.definition),
-  };
-});
-
-// Handler when Agent executes a tool
-mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const { name, arguments: toolArgs } = request.params;
-
-  try {
-    switch (name) {
-      case 'getTodaySchedule': {
-        const result = await getTodayScheduleTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      case 'logDoseStatus': {
-        const result = await logDoseStatusTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      case 'recordVitals': {
-        const result = await recordVitalsTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      case 'clinicalAdvisor': {
-        const result = await clinicalAdvisorTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      case 'orderRefill': {
-        const result = await orderRefillTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      case 'ringDeviceHub': {
-        const result = await ringDeviceHubTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      case 'negotiateAdherence': {
-        const result = await negotiateAdherenceTool.handler(toolArgs as any);
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-      }
-      default:
-        throw new Error(`MCP Tool '${name}' does not exist.`);
-    }
-  } catch (error: any) {
+/**
+ * Registers all Tools, Resources, and Prompts to the given MCP Server instance.
+ */
+function registerMcpHandlers(server: Server): void {
+  // --- MCP TOOLS HANDLERS ---
+  // Handler when Agent requests tool list
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
-      isError: true,
-      content: [{ type: 'text', text: `Error executing tool '${name}': ${error.message}` }],
+      tools: registeredTools.map((t) => t.definition),
     };
-  }
-});
+  });
 
-// --- MCP RESOURCES HANDLERS (ListResourcesRequestSchema & ReadResourceRequestSchema) ---
-// Handler when MCP client queries available read-only resources
-mcpServer.setRequestHandler(ListResourcesRequestSchema, async () => {
-  return {
-    resources: registeredResources,
-  };
-});
+  // Handler when Agent executes a tool
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    const { name, arguments: toolArgs } = request.params;
 
-// Handler when MCP client reads static URI resource (e.g. adherence history, active prescriptions)
-mcpServer.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-  const { uri } = request.params;
-  try {
-    return await readResourceHandler(uri);
-  } catch (error: any) {
-    throw new Error(`Failed to read MCP Resource '${uri}': ${error.message}`);
-  }
-});
+    try {
+      switch (name) {
+        case 'getTodaySchedule': {
+          const result = await getTodayScheduleTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        case 'logDoseStatus': {
+          const result = await logDoseStatusTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        case 'recordVitals': {
+          const result = await recordVitalsTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        case 'clinicalAdvisor': {
+          const result = await clinicalAdvisorTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        case 'orderRefill': {
+          const result = await orderRefillTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        case 'ringDeviceHub': {
+          const result = await ringDeviceHubTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        case 'negotiateAdherence': {
+          const result = await negotiateAdherenceTool.handler(toolArgs as any);
+          return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        }
+        default:
+          throw new Error(`MCP Tool '${name}' does not exist.`);
+      }
+    } catch (error: any) {
+      return {
+        isError: true,
+        content: [{ type: 'text', text: `Error executing tool '${name}': ${error.message}` }],
+      };
+    }
+  });
 
-// --- MCP PROMPTS HANDLERS (ListPromptsRequestSchema & GetPromptRequestSchema) ---
-// Handler when MCP client queries pre-engineered ambient interaction and triage prompts
-mcpServer.setRequestHandler(ListPromptsRequestSchema, async () => {
-  return {
-    prompts: registeredPrompts,
-  };
-});
+  // --- MCP RESOURCES HANDLERS (ListResourcesRequestSchema & ReadResourceRequestSchema) ---
+  // Handler when MCP client queries available read-only resources
+  server.setRequestHandler(ListResourcesRequestSchema, async () => {
+    return {
+      resources: registeredResources,
+    };
+  });
 
-// Handler when MCP client instantiates a prompt template with parameters
-mcpServer.setRequestHandler(GetPromptRequestSchema, async (request) => {
-  const { name, arguments: promptArgs } = request.params;
-  try {
-    return await getPromptHandler(name, promptArgs);
-  } catch (error: any) {
-    throw new Error(`Failed to get MCP Prompt '${name}': ${error.message}`);
-  }
-});
+  // Handler when MCP client reads static URI resource (e.g. adherence history, active prescriptions)
+  server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+    const { uri } = request.params;
+    try {
+      return await readResourceHandler(uri);
+    } catch (error: any) {
+      throw new Error(`Failed to read MCP Resource '${uri}': ${error.message}`);
+    }
+  });
+
+  // --- MCP PROMPTS HANDLERS (ListPromptsRequestSchema & GetPromptRequestSchema) ---
+  // Handler when MCP client queries pre-engineered ambient interaction and triage prompts
+  server.setRequestHandler(ListPromptsRequestSchema, async () => {
+    return {
+      prompts: registeredPrompts,
+    };
+  });
+
+  // Handler when MCP client instantiates a prompt template with parameters
+  server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+    const { name, arguments: promptArgs } = request.params;
+    try {
+      return await getPromptHandler(name, promptArgs);
+    } catch (error: any) {
+      throw new Error(`Failed to get MCP Prompt '${name}': ${error.message}`);
+    }
+  });
+}
+
+/**
+ * Factory function creating a fully configured MCP Server instance.
+ */
+function createMcpServer(): Server {
+  const server = new Server(
+    { name: 'carebridge-ambient-mcp', version: '1.0.0' },
+    { capabilities: { tools: {}, resources: {}, prompts: {} } }
+  );
+
+  // Đăng ký Tools, Resources, Prompts cho server instance này
+  registerMcpHandlers(server);
+
+  return server;
+}
 
 // ==========================================
 // 3. STREAMABLE HTTP TRANSPORT (SSE for Web & Smart Display Clients)
 // ==========================================
-const sseTransports = new Map<string, SSEServerTransport>();
+const mcpSessions = new Map<string, { transport: SSEServerTransport; server: Server }>();
 
 // SSE stream initiation endpoint
 app.get('/sse', async (req: Request, res: Response) => {
   console.log('[MCP] New client connected via SSE stream...');
   const transport = new SSEServerTransport('/message', res);
-  sseTransports.set(transport.sessionId, transport);
+  const serverInstance = createMcpServer();
+  mcpSessions.set(transport.sessionId, { transport, server: serverInstance });
 
-  req.on('close', () => {
+  req.on('close', async () => {
     console.log(`[MCP] Closed SSE session: ${transport.sessionId}`);
-    sseTransports.delete(transport.sessionId);
+    try {
+      await serverInstance.close();
+    } catch (e) {}
+    mcpSessions.delete(transport.sessionId);
   });
 
-  await mcpServer.connect(transport);
+  await serverInstance.connect(transport);
 });
 
 // Message POST endpoint from Agent client
 app.post('/message', async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId as string;
-  const transport = sseTransports.get(sessionId);
+  const session = mcpSessions.get(sessionId);
 
-  if (!transport) {
+  if (!session) {
     res.status(404).json({ error: 'MCP Session does not exist or has expired.' });
     return;
   }
 
-  await transport.handlePostMessage(req, res);
+  await session.transport.handlePostMessage(req, res);
 });
 
 // ==========================================
